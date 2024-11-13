@@ -1,0 +1,45 @@
+// Initialize mutation rate, types, and genomic elements
+initialize() {
+	initializeSLiMOptions(keepPedigrees = T); // Allows us to access the relatedness() method
+	initializeMutationRate(1.8e-7); // Mutation rate
+	initializeMutationType("m1", 0.5, "f", 0.0); // Neutral mutation
+	initializeMutationType("m2", 0.5, "f", -0.1); // Deleterious mutation
+	initializeMutationType("m3", 0.5, "f", 0.1); // Beneficial mutation
+	initializeGenomicElementType("g1", c(m1), 1.0); // Intron
+	initializeGenomicElementType("g2", c(m1, m2, m3), c(0.7, 0.2, 0.05));
+	initializeGenomicElement(g1, 0, 39999);  // Intron, 40 kB
+	initializeGenomicElement(g2, 40000, 59999); // Exon, 20 kB
+	initializeGenomicElement(g1, 60000, 99999); // Intron, 40kB
+	initializeRecombinationRate(4e-8);   // Recombination rate
+}
+
+1 early() {
+	// Create a subpopulation of 1000 individuals
+	sim.addSubpop("p1", 1000);  // Ensure you're working with 1000 individuals
+}
+
+1000: mateChoice() {
+	do{
+		mate = sample(p1.individuals, 1, T, weights);
+	} while (individual.relatedness(mate) != 0);
+	return mate;
+}
+
+// Logging for debugging (optional)
+1:1001 early() {
+	if (sim.cycle % 100 == 1) {
+		catn(sim.cycle + ": Population size = " + p1.individuals.size());
+	}
+}
+
+// Run for 1000 cycles
+2000: late() {
+	print("End of cycle " + sim.cycle);
+}
+
+1000 late() {
+	// Print mean heterozygosity across the population
+	heterozygosity = calcHeterozygosity(p1.genomes);
+	cat("Mean heterozygosity = " + heterozygosity + "\n");
+}
+// for each generation, check for related mates
