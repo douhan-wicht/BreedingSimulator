@@ -1,66 +1,25 @@
 // Initialize mutation rate, types, and genomic elements
 initialize() {
-    initializeSLiMOptions(keepPedigrees = T); // Allows us to access the relatedness() method
-    initializeMutationRate(1.8e-7); // Mutation rate
-    initializeMutationType("m1", 0.5, "f", 0.0); // Neutral mutation
-    initializeGenomicElementType("g1", c(m1), 1.0); // Genomic element type
-    initializeGenomicElement(g1, 0, 99999);  // Genomic element, 100 kB
-    initializeRecombinationRate(4e-8);   // Recombination rate
+	initializeSLiMOptions(keepPedigrees = T); // Allows us to access the relatedness() method
+	initializeMutationRate(1.8e-7); // Mutation rate
+	initializeMutationType("m1", 0.5, "f", 0.0); // Neutral mutation
+	initializeGenomicElementType("g1", c(m1), 1.0); // Genomic element type
+	initializeGenomicElement(g1, 0, 99999);  // Genomic element, 100 kB
+	initializeRecombinationRate(4e-8);   // Recombination rate
+	initializeSex("A"); // Sex-chromosome
 }
 
 1 early() {
-    // Create a subpopulation of 1000 individuals
-    sim.addSubpop("p1", 1000);
+	// Create a subpopulation of 1000 individuals
+	sim.addSubpop("p1", 1000);
 }
 
-1000: mateChoice(p1) {
-    // Start with equal weights for all individuals
-    weight_vector = rep(1.0, p1.individuals.size()); 
-
-    // Shuffle the population randomly for random mating
-    shuffled_indices = sample(0:(p1.individuals.size() - 1), p1.individuals.size(), replace = F); 
-    shuffled_individuals = p1.individuals[shuffled_indices];
-
-    // Loop through shuffled individuals in pairs, but handle odd-sized population
-    for (i in seq(1, p1.individuals.size() - 1, by = 2)) { 
-        // Check if we have a valid pair (i.e., ensure we're not exceeding the bounds of the array)
-        if (i + 1 < p1.individuals.size()) {
-            ind = shuffled_individuals[i];
-            mate = shuffled_individuals[i + 1];
-
-            // Check the relatedness between individual and potential mate
-            relatedness_value = ind.relatedness(mate);  // Direct relatedness calculation
-            // print("Relatedness of individual " + i + " and mate " + (i + 1) + ": " + relatedness_value);  // Debug print
-
-            // If they are too closely related (relatedness > 0.25), they shouldn't mate
-            if (relatedness_value > 0) {  
-                // Set their mating weights to zero (no mating)
-                weight_vector[i] = 0.0;
-                weight_vector[i + 1] = 0.0;
-            }
-        }
-    }
-
-    // If the population size is odd, the last individual has no mate, so they stay unpaired
-    if (p1.individuals.size() % 2 == 1) {
-        last_individual = shuffled_individuals[p1.individuals.size() - 1];
-        print("Last individual " + last_individual.id + " is unpaired due to odd population size.");
-    }
-
-    // Return the modified weight vector for mating; individuals with zero weight won't mate
-    return weight_vector;
-}
-
-// Logging for debugging (optional)
-1:1001 early() {
-    if (sim.cycle % 100 == 1) {
-        catn(sim.cycle + ": Population size = " + p1.individuals.size());
-    }
-}
-
-// Run for 1000 cycles
-2000: late() {
-    print("End of cycle " + sim.cycle);
+1000: mateChoice() {
+	do {
+		mate = sample(p1.individuals, 1, T, weights);
+	} while (individual.relatedness(mate) != 0);
+	
+	return mate;
 }
 
 1000 late() {
