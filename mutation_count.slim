@@ -21,8 +21,11 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2) {
 	
 	shared_count = 0; // Counting
 	for (mut in muts1) {
-		if (muts2.contains(mut)) {
-			shared_count = shared_count + 1;
+		for (pos in muts2){
+			if (mut == pos){
+				shared_count = shared_count + 1;
+				break;
+			}
 		}
 	}
 	return shared_count;
@@ -38,8 +41,9 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2) {
 		mate = sample(p1.individuals, 1, T, weights);
 	} while (individual.relatedness(mate) != 0);
 	sharedMutCount = countSharedMuts(individual, mate);
-	cat("Shared mutations =" + sharedMutCount);
-	
+	if (sharedMutCount > 1){
+		cat("Shared mutations =" + sharedMutCount + ".\n");
+	}
 	return mate;
 }
 
