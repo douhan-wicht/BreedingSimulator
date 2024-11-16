@@ -7,24 +7,23 @@ initialize() {
 	initializeMutationType("m3", 0.5, "f", 0.1); // Beneficial mutation
 	initializeGenomicElementType("g1", c(m1), 1.0); // Intron
 	initializeGenomicElementType("g2", c(m1, m2, m3), c(0.7, 0.2, 0.05));
-	initializeGenomicElement(g1, 0, 39999);  // Intron, 40 kB
-	initializeGenomicElement(g2, 40000, 59999); // Exon, 20 kB
-	initializeGenomicElement(g1, 60000, 99999); // Intron, 40kB
+	initializeGenomicElement(g1, 0, 29999);  // Intron, 40 kB
+	initializeGenomicElement(g2, 30000, 69999); // Exon, 20 kB
+	initializeGenomicElement(g1, 70000, 99999); // Intron, 40kB
 	initializeRecombinationRate(4e-8);   // Recombination rate
 	initializeSex("A"); // Initialize sex on autosome chromosome
 }
 
 function (lifso)countSharedMuts(lifso ind1, lifso ind2) {
 	// Function to count matching mutations
-	muts1 = ind1.genomes.positionsOfMutationsOfType(m2); // Retrieve deleterious mutations for both individuals
-	muts2 = ind2.genomes.positionsOfMutationsOfType(m2);
-	
+	muts1 = unique(ind1.genomes.positionsOfMutationsOfType(m2)); // Retrieve deleterious mutations for both individuals
+	muts2 = unique(ind2.genomes.positionsOfMutationsOfType(m2));
 	shared_count = 0; // Counting
 	for (mut in muts1) {
 		for (pos in muts2){
 			if (mut == pos){
 				shared_count = shared_count + 1;
-				break;
+				//cat("Match: " + mut + "\n"); // Print the matching positions
 			}
 		}
 	}
@@ -37,15 +36,19 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2) {
 }
 
 1000: mateChoice() {
-	do{
+	do {
 		mate = sample(p1.individuals, 1, T, weights);
-	} while (individual.relatedness(mate) != 0);
-	sharedMutCount = countSharedMuts(individual, mate);
-	if (sharedMutCount > 1){
-		cat("Shared mutations =" + sharedMutCount + ".\n");
-	}
+		sharedMutCount = countSharedMuts(individual, mate);
+		
+		// If sharedMutCount is greater than 1, search for a new mate
+		if (sharedMutCount != 0) {
+			cat("Shared mutations = " + sharedMutCount + ". Finding a new mate.\n");
+		}
+	} while (individual.relatedness(mate) != 0 | sharedMutCount > 1);  // Ensure relatedness is 0 and sharedMutCount <= 1
+	
 	return mate;
 }
+
 
 5000 late() {
 	// Print mean heterozygosity across the population
