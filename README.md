@@ -14,4 +14,4 @@ By simulating different breeding strategies, BreedingSimulator provides insights
 - **Inbreeding and Relatedness Tracking**: Track inbreeding coefficients, relatedness, and genetic diversity across generations.
 
 ## Acknowledgments
-BreedingSimulator is developed using the SLiM evolutionary simulation framework and was created in the context of a course on population genetics and dynamics for first-year master's students in molecular life sciences at the University of Lausanne. Special thanks to the open-source community and contributors who helped make this project possible.
+BreedingSimulator is developed using the SLiM evolutionary simulation framework and was created in the context of a course on population genetics and dynamics for first-year master's students in molecular life sciences at the University of Lausanne.
