@@ -5,8 +5,9 @@ initialize() {
 	initializeMutationType("m1", 0.5, "f", 0.0); // Neutral mutation
 	initializeMutationType("m2", 0.5, "f", -0.1); // Deleterious mutation
 	initializeMutationType("m3", 0.5, "f", 0.1); // Beneficial mutation
+	initializeMutationType("m4", 0.5, "f", 0.0); // Neutral mutation, exons
 	initializeGenomicElementType("g1", c(m1), 1.0); // Intron
-	initializeGenomicElementType("g2", c(m1, m2, m3), c(0.7, 0.2, 0.05));
+	initializeGenomicElementType("g2", c(m2, m3, m4), c(0.7, 0.2, 0.05));
 	initializeGenomicElement(g1, 0, 29999);  // Intron, 40 kB
 	initializeGenomicElement(g2, 30000, 69999); // Exon, 20 kB
 	initializeGenomicElement(g1, 70000, 99999); // Intron, 40kB
@@ -42,7 +43,7 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
 1000: mateChoice() {
 	do {
 		mate = sample(p1.individuals, 1, T, weights);
-		sharedMutCount = countSharedMuts(individual, mate, c(m2, m3));
+		sharedMutCount = countSharedMuts(individual, mate, c(m2, m3, m4));
 		// cat("Shared mutations = " + sharedMutCount + ".\n");
 		
 		// If sharedMutCount is greater than 1, search for a new mate
