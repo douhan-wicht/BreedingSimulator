@@ -1,118 +1,73 @@
-// set up a simple neutral simulation
 initialize() {
-	initializeSLiMOptions(keepPedigrees = T);
-	defineConstant("MPrs",20); // defines number of mating pairs
+	initializeSLiMOptions(keepPedigrees = T); // Initialize pedigree (to use the relatedness() function)
+	defineConstant("MPrs",20); // Define number of mating pairs
 	initializeMutationRate(1e-7);
-	// m1 mutation type: neutral
-	initializeMutationType("m1", 0.5, "f", 0.0); // neutral
-	initializeMutationType("m2", 0.5, "f", 0.1); // beneficial
-	initializeMutationType("m3", 0.5, "f", -0.1); // deleterious
+	initializeMutationType("m1", 0.5, "f", 0.0); // Neutral
+	initializeMutationType("m2", 0.5, "f", 0.1); // Beneficial
+	initializeMutationType("m3", 0.5, "f", -0.1); // Deleterious
 	initializeSex("A");
 	
 	// g1 genomic element type: uses m1 for all mutations
 	initializeGenomicElementType("g1", m1, 1.0);
+	// g2 genomic element type: uses m1, m2 and m3 mutations
 	initializeGenomicElementType("g2", c(m1, m2, m3), c(0.7,0.05,0.2));
 	
-	
-		
-	// uniform chromosome of length 100 kb with uniform recombination
+	// Uniform chromosome of length 100 kb with uniform recombination
 	initializeGenomicElement(g1, 0, 29999);
 	initializeGenomicElement(g2, 30000, 69999);
 	initializeGenomicElement(g1, 70000, 99999);
 	initializeRecombinationRate(1e-8);
 }
 
-// create a population of 500 individuals
+// Create a population of 500 individuals
 1 early() {
 	sim.addSubpop("p1", 500);
 }
 
-
-//run for 10k gen
-//1000 late() { sim.outputFixedMutations();}
-
-
-c(1000, 2000) late() {
-// Print mean heterozygosity across the population
-heterozygosity = calcHeterozygosity(p1.genomes);
-cat("Mean heterozygosity = " + heterozygosity + "\n");
-}
-//
-//20000 late() {
-//// Print mean heterozygosity across the population
-//heterozygosity = calcHeterozygosity(p1.genomes);
-//cat("Mean heterozygosity = " + heterozygosity + "\n");
-//}
-
-// add early event where i seletect the pair of males and females
-
-
+// Add early event where we select the pairs of males and females
 1000: early() {
-		inds = p1.individuals; 
-		fems = inds[inds.sex=="F"];			// subsets males and females from yinds
-		mans = inds[inds.sex=="M"];
-		p1.individuals.tag = 0;				// tags all individuals with a 0
-		if (sim.cycle == 1) {		// if in first generation of regime (first since loading), MPrs females and MPrs males are chosen at random  
-			mothers = sample(fems,MPrs);
-			fathers = sample(mans,MPrs);
-		}
-		// In first generation of regime (the first newly produced since loading), one male and one female are selected at random. they are added to the group of "mothers" and "fathers" and will be mating pairs in the next generation and will be removed from the pool females and males from which pairs can be drawn. 
-		else {
-		mothers = c();  // creates groups of mothers and fathers
-		fathers = c();
-		for (m in 0:(MPrs-1)) {
-			mother = sample(fems,1);  // selects one male and female from the males and females with age == 0 
-			father = sample(mans,1);
-			mothers = c(mothers,mother); 	// adds the female to "mothers" and the male to the "fathers"
-			fathers = c(fathers,father);
-			fems = fems[fems.index!=mother.index]; // removes the female and male from their respective pools of possible parents
-			mans = mans[mans.index!=father.index];
-			}
-
-		}
-		mothers.tag = c(1:MPrs); // tags the mothers and fathers with unique numbers to ensure the remain in the correct order
-		fathers.tag = c(1:MPrs);
-
-//
-//		if (sim.cycle == 1) {		// if in first generation, then no output parents 
-//		    cat("Generation " + sim.cycle + "\n");
-//    inds = p1.individuals; // Get all individuals in the population
-//    for (ind in inds) {
-//        cat("ID: " + ind.pedigreeID + ", Sex: " + ind.sex + ", Tag: " + ind.tag + "\n");
-//    }
-//    cat("\n"); // Add a blank line for readability
-//		}
-//		else {
-//		    cat("Generation " + sim.cycle + "\n");
-//    inds = p1.individuals; // Get all individuals in the population
-//    for (ind in inds) {
-//        cat("ID: " + ind.pedigreeID + ", Sex: " + ind.sex + ", Tag: " + ind.tag + ", mother: " + ind.pedigreeParentIDs[0] + ", father: " + ind.pedigreeParentIDs[1] + "\n");
-//    }
-//    cat("\n"); // Add a blank line for readability
-//    }
-}	
-
-
-
-
+	inds = p1.individuals;
+	// Subset males and females from yinds
+	fems = inds[inds.sex=="F"];			
+	mans = inds[inds.sex=="M"];
+	p1.individuals.tag = 0; // Tag all individuals with a 0
+	
+	// Create groups of mothers and fathers
+	mothers = c();
+	fathers = c();
+	for (m in 0:(MPrs-1)) {
+		// Select one male and female from the males and females
+		mother = sample(fems,1, replace = F);  
+		father = sample(mans,1, replace = F);
+		// Add the female to "mothers" and the male to the "fathers"
+		mothers = c(mothers,mother);
+		fathers = c(fathers,father);
+		
+		// Remove the mother and father from their respective pools of possible parents
+		fems = fems[fems.index!=mother.index]; 
+		mans = mans[mans.index!=father.index];
+	}
+	// Tag mothers and fathers with unique numbers to ensure they remain in the correct order
+	mothers.tag = c(1:MPrs);
+	fathers.tag = c(1:MPrs);
+}
 
 // Mate-choice callback
 1000: mateChoice() {
-    if (individual.tag == 0) {
-        // If the female has no tag, return no mating probability
-        return float(0);
-    } else {
-        // If the female has a tag, select the male with the same tag
-        males = p1.individuals[p1.individuals.sex == "M"]; // Get all males
-        matchingMale = males[males.tag == individual.tag];
+	if (individual.tag == 0) {
+		// If the female has no tag, return no mating probability
+		return float(0);
+	} else {
+		// If the female has a tag, select the male with the same tag
+		males = p1.individuals[p1.individuals.sex == "M"]; // Get all males
+		matchingMale = males[males.tag == individual.tag];
+		
+		return(matchingMale[0]);	
+	}
+}
 
-            return(matchingMale[0]);
-
-        }
-    }
-
-
-
-
-
-
+c(1000, 2000) late() {
+	// Print mean heterozygosity across the population
+	heterozygosity = calcHeterozygosity(p1.genomes);
+	cat("Mean heterozygosity = " + heterozygosity + "\n");
+}
