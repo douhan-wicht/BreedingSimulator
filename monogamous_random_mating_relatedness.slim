@@ -24,7 +24,7 @@ initialize() {
 	sim.addSubpop("p1", 500);
 }
 
-// Add early event where we select the pairs of males and females
+// Add early event where i seletect the pair of males and females
 1000: early() {
 	inds = p1.individuals;
 	// Subset males and females from the population
@@ -35,22 +35,30 @@ initialize() {
 	// Create groups of mothers and fathers
 	mothers = c();
 	fathers = c();
-	for (m in 0:(MPrs-1)) {
+	while (length(mothers) < MPrs | length(fathers) < MPrs) {
 		// Select one male and female from the males and females
-		mother = sample(fems,1, replace = F);
-		father = sample(mans,1, replace = F);
-		// Add the female to "mothers" and the male to the "fathers"
-		mothers = c(mothers,mother);
-		fathers = c(fathers,father);
-		
-		// Remove the mother and father from their respective pools of possible parents
-		fems = fems[fems.index!=mother.index];
-		mans = mans[mans.index!=father.index];
+		mother = sample(fems,1);
+		father = sample(mans,1);
+		// Make sure that they are not related
+		if (mother.relatedness(father) == 0) {
+			// Add the female to "mothers" and the male to the "fathers"
+			mothers = c(mothers,mother);
+			fathers = c(fathers,father);
+			
+			// Remove the mother and father from their respective pools of possible parents
+			fems = fems[fems.index!=mother.index];
+			mans = mans[mans.index!=father.index];
+		}
 	}
+	
 	// Tag mothers and fathers with unique numbers to ensure they remain in the correct order
 	mothers.tag = c(1:MPrs);
 	fathers.tag = c(1:MPrs);
 }
+
+
+
+
 
 // Mate-choice callback
 1000: mateChoice() {
@@ -63,6 +71,7 @@ initialize() {
 		matchingMale = males[males.tag == individual.tag];
 		
 		return(matchingMale[0]);
+	
 	}
 }
 
