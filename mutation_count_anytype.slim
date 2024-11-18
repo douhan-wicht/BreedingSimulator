@@ -36,13 +36,13 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
 
 1 early() {
 	// Create a subpopulation of 1000 individuals
-	sim.addSubpop("p1", 1000);  // Ensure you're working with 1000 individuals
+	sim.addSubpop("p1", 500);  // Ensure you're working with 1000 individuals
 }
 
 1000: mateChoice() {
 	do {
 		mate = sample(p1.individuals, 1, T, weights);
-		sharedMutCount = countSharedMuts(individual, mate, c(m2));
+		sharedMutCount = countSharedMuts(individual, mate, c(m2, m3));
 		// cat("Shared mutations = " + sharedMutCount + ".\n");
 		
 		// If sharedMutCount is greater than 1, search for a new mate
