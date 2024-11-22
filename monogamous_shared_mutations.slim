@@ -104,7 +104,7 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
 			attempts = 0;  // Reset the attempts counter for the next pair
 			
 			// Indicate that the breeding pair had to be selected randomly
-			cat("The breeding pair #" + (mating_pairs - 1) + " of the simulation " + sim.cycle + " had to be selected randomly because it exeeded the number of attempts allowed. \n\n");
+			cat("The breeding pair #" + (mating_pairs - 1) + " of generation #" + sim.cycle + " had to be selected randomly because it exeeded the number of attempts allowed. \n\n");
 		}
 	}
 }
