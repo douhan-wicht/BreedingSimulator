@@ -1,6 +1,6 @@
 initialize() {
     initializeSLiMOptions(keepPedigrees = T); // Allows us to access the relatedness() method
-    defineConstant("MPrs",20); // Define number of mating pairs
+    defineConstant("MPrs", 20); // Define number of mating pairs
     initializeMutationRate(1.8e-7); // Mutation rate
     initializeMutationType("m1", 0.5, "f", 0.0); // Neutral mutation
     initializeMutationType("m2", 0.5, "f", -0.1); // Deleterious mutation
@@ -21,14 +21,14 @@ initialize() {
 }
 
 // Function to select pairs of males and females from different broods
-function selectPairs(inds, fems, mans) {
+function (void) selectPairs(lifso inds, lifso fems, lifso mans) {
     mothers = c();
     fathers = c();
 
     while (size(mothers) < 20) {
         // Select one female and one male from different broods
         mother = sample(fems, 1, replace = F);
-        availableMans = mans[sapply(mans, function(x) x.pedigreeParentIDs[1] != mother.pedigreeParentIDs[1])];
+        availableMans = mans[sapply(mans, "x.pedigreeParentIDs[1] != mother.pedigreeParentIDs[1]")];
         if (size(availableMans) == 0) {
             cat("No available males from different broods\n");
             break;
