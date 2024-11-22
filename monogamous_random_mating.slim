@@ -35,6 +35,7 @@ initialize() {
 	// Create groups of mothers and fathers
 	mothers = c();
 	fathers = c();
+	// Select 20 breeding pairs
 	for (m in 0:(MPrs-1)) {
 		// Select one male and female from the males and females
 		mother = sample(fems,1, replace = F);
