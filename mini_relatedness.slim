@@ -1,68 +1,81 @@
 initialize() {
-	initializeSLiMOptions(keepPedigrees = T); // Allows us to access the relatedness() method
-	defineConstant("MPrs",20); // Define number of mating pairs
-	initializeMutationRate(1.8e-7); // Mutation rate
-	initializeMutationType("m1", 0.5, "f", 0.0); // Neutral mutation
-	initializeMutationType("m2", 0.5, "f", -0.1); // Deleterious mutation
-	initializeMutationType("m3", 0.5, "f", 0.1); // Beneficial mutation
-	initializeMutationType("m4", 0.5, "f", 0.0); // Neutral mutation, exons
-	initializeGenomicElementType("g1", c(m1), 1.0); // Intron
-	initializeGenomicElementType("g2", c(m2, m3, m4), c(0.7, 0.2, 0.05));
-	initializeGenomicElement(g1, 0, 39999);  // Intron, 40 kB
-	initializeGenomicElement(g2, 40000, 59999); // Exon, 20 kB
-	initializeGenomicElement(g1, 60000, 99999); // Intron, 40kB
-	initializeRecombinationRate(4e-8);   // Recombination rate
-	initializeSex("A"); // Initialize sex on autosome chromosome
+    initializeSLiMOptions(keepPedigrees = T); // Allows us to access the relatedness() method
+    defineConstant("MPrs",20); // Define number of mating pairs
+    initializeMutationRate(1.8e-7); // Mutation rate
+    initializeMutationType("m1", 0.5, "f", 0.0); // Neutral mutation
+    initializeMutationType("m2", 0.5, "f", -0.1); // Deleterious mutation
+    initializeMutationType("m3", 0.5, "f", 0.1); // Beneficial mutation
+    initializeMutationType("m4", 0.5, "f", 0.0); // Neutral mutation, exons
+    initializeGenomicElementType("g1", c(m1), 1.0); // Intron
+    initializeGenomicElementType("g2", c(m2, m3, m4), c(0.7, 0.2, 0.05));
+    initializeGenomicElement(g1, 0, 39999);  // Intron, 40 kB
+    initializeGenomicElement(g2, 40000, 59999); // Exon, 20 kB
+    initializeGenomicElement(g1, 60000, 99999); // Intron, 40kB
+    initializeRecombinationRate(4e-8);   // Recombination rate
+    initializeSex("A"); // Initialize sex on autosome chromosome
 }
 
 // create a population of 500 individuals
 1 early() {
-	sim.addSubpop("p1", 500);
+    sim.addSubpop("p1", 500);
+}
+
+// Function to select pairs of males and females from different broods
+function selectPairs(inds, fems, mans) {
+    mothers = c();
+    fathers = c();
+
+    while (size(mothers) < 20) {
+        // Select one female and one male from different broods
+        mother = sample(fems, 1, replace = F);
+        availableMans = mans[sapply(mans, function(x) x.pedigreeParentIDs[1] != mother.pedigreeParentIDs[1])];
+        if (size(availableMans) == 0) {
+            cat("No available males from different broods\n");
+            break;
+        }
+        father = sample(availableMans, 1, replace = F);
+        
+        // Add the female to "mothers" and the male to the "fathers"
+        mothers = c(mothers, mother);
+        fathers = c(fathers, father);
+        
+        // Remove the mother and father from their respective pools of possible parents
+        fems = fems[fems.index != mother.index];
+        mans = mans[mans.index != father.index];
+    }
+    
+    // Tag mothers and fathers with unique numbers to ensure they remain in the correct order
+    mothers.tag = c(1:20);
+    fathers.tag = c(1:20);
 }
 
 // Add early event where we select the pairs of males and females from different broods
 1000: early() {
-	inds = p1.individuals;
-	// Subset males and females from the population
-	fems = inds[inds.sex=="F"];
-	mans = inds[inds.sex=="M"];
-	p1.individuals.tag = 0; // Tag all individuals with a 0
-	
-	while (size(mothers) < 20) {
-		// Select one female and one male from different broods
-		mother = sample(fems, 1, replace = F);
-		father = sample(mans[mans.pedigreeParentIDs[1] != mother.pedigreeParentIDs[1]], 1, replace = F);
-		
-		// Add the female to "mothers" and the male to the "fathers"
-		mothers = c(mothers, mother);
-		fathers = c(fathers, father);
-		
-		// Remove the mother and father from their respective pools of possible parents
-		fems = fems[fems.index != mother.index];
-		mans = mans[mans.index != father.index];
-	}
-	
-	// Tag mothers and fathers with unique numbers to ensure they remain in the correct order
-	mothers.tag = c(1:20);
-	fathers.tag = c(1:20);
+    inds = p1.individuals;
+    // Subset males and females from the population
+    fems = inds[inds.sex == "F"];
+    mans = inds[inds.sex == "M"];
+    p1.individuals.tag = 0; // Tag all individuals with a 0
+    
+    selectPairs(inds, fems, mans);
 }
 
 // Mate-choice callback
 1000: mateChoice() {
-	if (individual.tag == 0) {
-		// If the female has no tag, return no mating probability
-		return float(0);
-	} else {
-		// If the female has a tag, select the male with the same tag
-		males = p1.individuals[p1.individuals.sex == "M"]; // Get all males
-		matchingMale = males[males.tag == individual.tag];
-		
-		return(matchingMale[0]);
-	}
+    if (individual.tag == 0) {
+        // If the female has no tag, return no mating probability
+        return float(0);
+    } else {
+        // If the female has a tag, select the male with the same tag
+        males = p1.individuals[p1.individuals.sex == "M"]; // Get all males
+        matchingMale = males[males.tag == individual.tag];
+        
+        return(matchingMale[0]);
+    }
 }
 
 c(1000, 2000) late() {
-	// Print mean heterozygosity across the population
-	heterozygosity = calcHeterozygosity(p1.genomes);
-	cat("Mean heterozygosity = " + heterozygosity + "\n");
+    // Print mean heterozygosity across the population
+    heterozygosity = calcHeterozygosity(p1.genomes);
+    cat("Mean heterozygosity = " + heterozygosity + "\n");
 }
