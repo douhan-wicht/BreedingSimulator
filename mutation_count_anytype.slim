@@ -8,9 +8,9 @@ initialize() {
 	initializeMutationType("m4", 0.5, "f", 0.0); // Neutral mutation, exons
 	initializeGenomicElementType("g1", c(m1), 1.0); // Intron
 	initializeGenomicElementType("g2", c(m2, m3, m4), c(0.7, 0.2, 0.05));
-	initializeGenomicElement(g1, 0, 29999);  // Intron, 40 kB
-	initializeGenomicElement(g2, 30000, 69999); // Exon, 20 kB
-	initializeGenomicElement(g1, 70000, 99999); // Intron, 40kB
+	initializeGenomicElement(g1, 0, 39999);  // Intron, 40 kB
+	initializeGenomicElement(g2, 40000, 59999); // Exon, 20 kB
+	initializeGenomicElement(g1, 60000, 99999); // Intron, 40kB
 	initializeRecombinationRate(4e-8);   // Recombination rate
 	initializeSex("A"); // Initialize sex on autosome chromosome
 }
