@@ -44,7 +44,7 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
 	sim.addSubpop("p1", 500);
 }
 
-// Add early event where we select the pairs of males and females
+// Add early event where we select the pairs of males and females (Genetic Load)
 1000: early() {
 	inds = p1.individuals;
 	// Subset males and females from the population
@@ -56,6 +56,63 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
 	mothers = c();
 	fathers = c();
 	mating_pairs = 0;
+	
+	// Set the maximum number of attempts to find suitable pairs
+	max_attempts = 20;
+	attempts = 0;
+	
+	// Select 20 breeding pairs
+	while (mating_pairs < 13) {
+		mother = sample(fems, 1, replace = F);
+		father = sample(mans, 1, replace = F);
+		attempts = attempts + 1;
+		
+		// Check the condition for deleterious mutations only if within attempt limit
+		if (attempts <= max_attempts) {
+			if (countSharedMuts(mother, father, c(m1,m2,m3)) <= 5) {
+				// Attribute the same tag to the successful mating pair
+				mother.tag = mating_pairs + 1;
+				father.tag = mating_pairs + 1;
+				
+				// Add the mating pair to the mothers and fathers vectors
+				mothers = c(mothers, mother);
+				fathers = c(fathers, father);
+				
+				// Remove the mother and father from their respective pools of possible parents
+				fems = fems[fems.index != mother.index];
+				mans = mans[mans.index != father.index];
+				
+				// Increment the mating pairs counter and reset attempts
+				mating_pairs = mating_pairs + 1;
+				attempts = 0;  // Reset the attempts counter for the next pair
+			}
+		} else {
+			// Randomly assign a mating pair if attempts exceed the threshold
+			mother.tag = mating_pairs + 1;
+			father.tag = mating_pairs + 1;
+			
+			// Add the mating pair to the mothers and fathers vectors
+			mothers = c(mothers, mother);
+			fathers = c(fathers, father);
+			
+			// Remove the mother and father from their respective pools of possible parents
+			fems = fems[fems.index != mother.index];
+			mans = mans[mans.index != father.index];
+			
+			// Increment the mating pairs counter and reset attempts
+			mating_pairs = mating_pairs + 1;
+			attempts = 0;  // Reset the attempts counter for the next pair
+			
+			// Indicate that the breeding pair had to be selected randomly
+			cat("The breeding pair #" + (mating_pairs - 1) + " of generation #" + sim.cycle + " had to be selected randomly because it exeeded the number of attempts allowed. \n\n");
+		}
+	}
+	
+	// Add early event where we select the pairs of males and females (Relatedness)
+	// Create groups of mothers and fathers
+	mothers = c();
+	fathers = c();
+	mating_pairs = 13;
 	
 	// Set the maximum number of attempts to find suitable pairs
 	max_attempts = 20;
@@ -108,7 +165,6 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
 		}
 	}
 }
-
 
 // Mate-choice callback
 1000: mateChoice() {
