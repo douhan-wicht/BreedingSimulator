@@ -1,0 +1,131 @@
+initialize() {
+	initializeSLiMOptions(keepPedigrees = T); // Initialize pedigree (to use the relatedness() function)
+	defineConstant("MPrs",20); // Define number of mating pairs
+	initializeMutationRate(1e-7);
+	initializeMutationType("m1", 0.5, "f", 0.0); // Neutral
+	initializeMutationType("m2", 0.5, "f", 0.1); // Beneficial
+	initializeMutationType("m3", 0.5, "f", -0.1); // Deleterious
+	initializeSex("A");
+	
+	// g1 genomic element type: uses m1 for all mutations
+	initializeGenomicElementType("g1", m1, 1.0);
+	// g2 genomic element type: uses m1, m2 and m3 mutations
+	initializeGenomicElementType("g2", c(m1, m2, m3), c(0.7,0.05,0.2));
+	
+	// Uniform chromosome of length 100 kb with uniform recombination
+	initializeGenomicElement(g1, 0, 29999);
+	initializeGenomicElement(g2, 30000, 69999);
+	initializeGenomicElement(g1, 70000, 99999);
+	initializeRecombinationRate(1e-8);
+}
+
+// Function to count shared mutations
+function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
+	muts1 = c();
+	muts2 = c();
+	for (type in mutationTypes){
+		muts1 = unique(c(muts1, ind1.genomes.positionsOfMutationsOfType(type))); // Retrieve deleterious mutations for individual 1
+		muts2 = unique(c(muts2, ind2.genomes.positionsOfMutationsOfType(type))); // Retrieve deleterious mutations for individual 2
+	}
+	shared_count = 0; // Counting
+	for (mut in muts1) {
+		for (pos in muts2){
+			if (mut == pos){
+				shared_count = shared_count + 1;
+				//cat("Match: " + mut + "\n"); // Print the matching positions
+			}
+		}
+	}
+	return shared_count;
+}
+
+// Create a population of 500 individuals
+1 early() {
+	sim.addSubpop("p1", 500);
+}
+
+// Add early event where we select the pairs of males and females
+1000: early() {
+	inds = p1.individuals;
+	// Subset males and females from the population
+	fems = inds[inds.sex=="F"];
+	mans = inds[inds.sex=="M"];
+	p1.individuals.tag = 0; // Tag all individuals with a 0
+	
+	// Create groups of mothers and fathers
+	mothers = c();
+	fathers = c();
+	mating_pairs = 0;
+	
+	// Set the maximum number of attempts to find suitable pairs
+	max_attempts = 20;
+	attempts = 0;
+	
+	// Select 20 breeding pairs
+	while (mating_pairs < 20) {
+		mother = sample(fems, 1, replace = F);
+		father = sample(mans, 1, replace = F);
+		attempts = attempts + 1;
+		
+		// Check the condition for deleterious mutations only if within attempt limit
+		if (attempts <= max_attempts) {
+			if (countSharedMuts(mother, father, c(m1,m2,m3)) <= 5) {
+				// Attribute the same tag to the successful mating pair
+				mother.tag = mating_pairs + 1;
+				father.tag = mating_pairs + 1;
+				
+				// Add the mating pair to the mothers and fathers vectors
+				mothers = c(mothers, mother);
+				fathers = c(fathers, father);
+				
+				// Remove the mother and father from their respective pools of possible parents
+				fems = fems[fems.index != mother.index];
+				mans = mans[mans.index != father.index];
+				
+				// Increment the mating pairs counter and reset attempts
+				mating_pairs = mating_pairs + 1;
+				attempts = 0;  // Reset the attempts counter for the next pair
+			}
+		} else {
+			// Randomly assign a mating pair if attempts exceed the threshold
+			mother.tag = mating_pairs + 1;
+			father.tag = mating_pairs + 1;
+			
+			// Add the mating pair to the mothers and fathers vectors
+			mothers = c(mothers, mother);
+			fathers = c(fathers, father);
+			
+			// Remove the mother and father from their respective pools of possible parents
+			fems = fems[fems.index != mother.index];
+			mans = mans[mans.index != father.index];
+			
+			// Increment the mating pairs counter and reset attempts
+			mating_pairs = mating_pairs + 1;
+			attempts = 0;  // Reset the attempts counter for the next pair
+			
+			// Indicate that the breeding pair had to be selected randomly
+			cat("The breeding pair #" + (mating_pairs - 1) + " of generation #" + sim.cycle + " had to be selected randomly because it exeeded the number of attempts allowed. \n\n");
+		}
+	}
+}
+
+
+// Mate-choice callback
+1000: mateChoice() {
+	if (individual.tag == 0) {
+		// If the female has no tag, return no mating probability
+		return float(0);
+	} else {
+		// If the female has a tag, select the male with the same tag
+		males = p1.individuals[p1.individuals.sex == "M"]; // Get all males
+		matchingMale = males[males.tag == individual.tag];
+		
+		return(matchingMale[0]);
+	}
+}
+
+c(1000, 2000) late() {
+	// Print mean heterozygosity across the population
+	heterozygosity = calcHeterozygosity(p1.genomes);
+	cat("Mean heterozygosity = " + heterozygosity + "\n");
+}
