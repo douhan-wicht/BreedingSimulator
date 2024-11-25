@@ -126,7 +126,7 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
 		
 		// Check the condition for deleterious mutations only if within attempt limit
 		if (attempts <= max_attempts) {
-			if (countSharedMuts(mother, father, c(m1,m2,m3)) <= 5) {
+			if (father.pedigreeGrandparentIDs[1] != mother.pedigreeGrandparentIDs[1]) {
 				// Attribute the same tag to the successful mating pair
 				mother.tag = mating_pairs + 1;
 				father.tag = mating_pairs + 1;
