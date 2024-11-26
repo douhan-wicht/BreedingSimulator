@@ -34,7 +34,7 @@ initialize() {
 	
 	while (size(mothers) < 20) {
 		// Select one female and one male from different broods
-		mother = sample(fems, 1, replace = F);
+		mother = sample(fems, 1, replace = F); // TODO Fix brood 
 		while (T) {
 			father = sample(mans, 1, replace = F);
 			if (father.pedigreeGrandparentIDs[1] != mother.pedigreeGrandparentIDs[1]){
@@ -47,7 +47,7 @@ initialize() {
 		fathers = c(fathers, father);
 		
 		// Remove the mother and father from their respective pools of possible parents
-		fems = fems[fems.index != mother.index];
+		fems = fems[fems.index != mother.index]; // Pop brood id
 		mans = mans[mans.index != father.index];
 	}
 	
