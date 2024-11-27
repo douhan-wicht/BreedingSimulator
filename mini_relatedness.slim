@@ -47,7 +47,6 @@ initialize() {
 				available_fems = c(available_fems, fem);
 			}
 		}
-		cat("Size of available_fems: " + size(available_fems) + "\n");
 		
 		// Filtering females
 		if (size(available_fems) > 0){
@@ -66,7 +65,7 @@ initialize() {
 				available_mans = c(available_mans, man);
 			}
 		}
-		cat("Size of available_mans: " + size(available_mans) + "\n");
+
 		// Selecting males	
 		if (size(available_mans) != 0){
 			iteration_count = 0;
@@ -115,8 +114,6 @@ initialize() {
 	for (i in 0:(size(fathers)-1)) {
 		fathers[i].tag = i+1;
 	}
-	cat("Number of mothers:" + size(mothers));
-	cat("Number of fathers:" + size(fathers));
 	cat("Invalid mothers selected (non-unique brood): " + invalid_mothers_selected + ".\n");
 	cat("Invalid fathers selected (non-unique brood): " + invalid_fathers_selected + ".\n");
 
