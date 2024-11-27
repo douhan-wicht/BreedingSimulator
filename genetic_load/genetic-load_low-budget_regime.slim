@@ -1,0 +1,197 @@
+// set up a simple neutral simulation
+initialize() {
+	initializeSLiMOptions(keepPedigrees = T);
+	defineConstant("MPrs",20); // defines number of mating pairs
+	initializeMutationRate(1e-7);
+	initializeMutationType("m1", 0.5, "f", 0.0); // neutral
+	initializeMutationType("m2", 0.5, "e", 0.05); // beneficial
+	initializeMutationType("m3", 0.1, "g", -0.1, 0.2); // deleterious
+	initializeSex("A");
+	
+	initializeGenomicElementType("g1", m1, 1.0);
+	initializeGenomicElementType("g2", c(m1, m2, m3), c(0.67,0.03,0.3));
+	
+	// Uncomment if not used as a parameter in the terminal	
+	//	NBurn=10000;
+	
+	initializeRecombinationRate(1e-8);
+	
+	// Uncomment if not used as a parameter in the terminal
+	//    TotalLength = 1000000;
+	
+	// Create exons (70% of the genome) and introns (30% of the genome) and insure alternation
+	genomicElementStart = 0;
+	exonSize = asInteger(TotalLength * 0.7);  // Total exon size
+	intronSize = asInteger(TotalLength * 0.3); // Total intron size
+	nExons= asInteger(TotalLength * 1e-4);
+	
+	exonLength = asInteger(exonSize / nExons);   // Divide into n exons
+	intronLength = asInteger(intronSize / nExons); // Divide into n introns
+	
+	for (i in 0:(nExons-1)) {
+		// Define an exon
+		initializeGenomicElement(g2, genomicElementStart, genomicElementStart + intronLength - 1);
+		genomicElementStart = genomicElementStart + intronLength;
+		
+		// Define an intron if there's space
+		if (genomicElementStart + intronLength - 1 < TotalLength) {
+			initializeGenomicElement(g1, genomicElementStart, asInteger(genomicElementStart + exonLength - 1));
+			genomicElementStart = genomicElementStart + exonLength;
+		}
+	}
+}
+
+// Function to count shared mutations
+function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
+	muts1 = c();
+	muts2 = c();
+	for (type in mutationTypes){
+		muts1 = unique(c(muts1, ind1.genomes.positionsOfMutationsOfType(type))); // Retrieve deleterious mutations for individual 1
+		muts2 = unique(c(muts2, ind2.genomes.positionsOfMutationsOfType(type))); // Retrieve deleterious mutations for individual 2
+	}
+	shared_count = 0; // Counting
+	for (mut in muts1) {
+		for (pos in muts2){
+			if (mut == pos){
+				shared_count = shared_count + 1;
+			}
+		}
+	}
+	return shared_count;
+}
+
+// create a population of 500 individuals
+1 early() {
+	sim.addSubpop("p1", 500);
+}
+
+// Import the burnin population
+1 late() {
+	sim.readFromPopulationFile("Burnin_" + NBurn + "n_" + runID + ".txt");
+}
+
+// Output population statistics and write them into a file
+(NBurn + 1):(NBurn + NGen + 1) early() {
+	// Print mean heterozygosity across the population
+	heterozygosity = "Generation: " + sim.cycle + ", Heterozygosity: " + asString(calcHeterozygosity(p1.genomes)) + "\n";
+	writeFile(Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", heterozygosity, append = T);
+}
+
+// Select the mating pairs
+(NBurn + 1): early() { // Start the breeding regime right after the burnin
+	inds = p1.individuals;
+	
+	// Subset males and females from the population
+	fems = inds[inds.sex=="F"];
+	mans = inds[inds.sex=="M"];
+	
+	// Tag all individuals with a 0
+	p1.individuals.tag = 0;
+	
+	// Create groups of mothers and fathers
+	mothers = c();
+	fathers = c();
+	
+	// Initialize the number of mating_pairs
+	mating_pairs = 0;
+	
+	// Initialize the previous candidates vector
+	previous_candidates = c();
+	
+	// Select 20 breeding pairs
+	while (mating_pairs < 20) {
+		// Select a mother from the pool of available females
+		mother = sample(fems, 1, replace = F);
+		
+		// Initialize some state parameters and counters
+		found_a_daddy = F;
+		allowed_mutations = 0;
+		
+		// Retry loop: Keep increasing allowed_mutations until a mate is found
+		while (!found_a_daddy) {
+			// Check if an already sequenced male is adequate, providing there is at least 1
+			if (size(previous_candidates) != 0) {
+				// Go through the list of previous candidates
+				for (potential_father in previous_candidates) {
+					if (countSharedMuts(mother, potential_father, c(m1, m2, m3)) <= allowed_mutations) {
+						// Attribute the same tag to the successful mating pair
+						mother.tag = mating_pairs + 1;
+						potential_father.tag = mating_pairs + 1;
+						
+						// Add the mating pair to the mothers and fathers vectors
+						mothers = c(mothers, mother);
+						fathers = c(fathers, potential_father);
+						
+						// Remove the mother and father from their respective pools of possible parents
+						fems = fems[fems.index != mother.index];
+						mans = mans[mans.index != potential_father.index];
+						
+						// Remove the now father from the list of previously unsuccessful candidates
+						previous_candidates = previous_candidates[previous_candidates.index != potential_father.index];
+						
+						// Increment the mating pairs counter
+						mating_pairs = mating_pairs + 1;
+						found_a_daddy = T;
+						
+						break;
+					}
+				}
+			}
+			
+			if (found_a_daddy) {
+				// Exit the retry loop if a mate has been found in the previous candidates
+				break;
+			}
+			
+			// Sequence a new potential father if no adequate mate has been found in the previous candidates
+			father = sample(mans, 1, replace = F);
+			
+			if (countSharedMuts(mother, father, c(m1, m2, m3)) <= allowed_mutations) {
+				// Attribute the same tag to the successful mating pair
+				mother.tag = mating_pairs + 1;
+				father.tag = mating_pairs + 1;
+				
+				// Add the mating pair to the mothers and fathers vectors
+				mothers = c(mothers, mother);
+				fathers = c(fathers, father);
+				
+				// Remove the mother and father from their respective pools of possible parents
+				fems = fems[fems.index != mother.index];
+				mans = mans[mans.index != father.index];
+				
+				// Increment the mating pairs counter
+				mating_pairs = mating_pairs + 1;
+				found_a_daddy = T;
+				
+				break;
+			}
+			
+			// If no suitable father was found, add the potential father to previous_candidates
+			previous_candidates = c(previous_candidates, father);
+			
+			// Increment allowed_mutations to allow more mismatches in the next iteration
+			allowed_mutations = allowed_mutations + 1;
+		}
+	}
+
+}
+
+// Mate-choice callback
+(NBurn + 1): mateChoice() {
+	if (individual.tag == 0) {
+		// If the female has no tag, return no mating probability
+		return float(0);
+	} else {
+		// If the female has a tag, select the male with the same tag
+		males = p1.individuals[p1.individuals.sex == "M"]; // Get all males
+		matchingMale = males[males.tag == individual.tag];
+		
+		return(matchingMale[0]);
+	}
+}
+
+// Output a population file at the end of the simulation
+(NBurn + NGen + 1) late() {
+	sim.outputFull( Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + ".txt", pedigreeIDs = T);
+	sim.simulationFinished();
+}
