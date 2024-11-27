@@ -31,13 +31,37 @@ initialize() {
 	// Initialize mothers and fathers as empty vectors
 	mothers = c();
 	fathers = c();
+	brood_ids = asInteger(c());
+	available_fems = c();
+	available_mans = c();
 	
 	while (size(mothers) < 20) {
 		// Select one female and one male from different broods
-		mother = sample(fems, 1, replace = F); // TODO Fix brood 
+		for (fem in fems){
+			matching_ids_fem = setIntersection(fem.pedigreeParentIDs, brood_ids);
+			if (size(matching_ids_fem) == 0){
+				available_fems = c(available_fems, fem);
+			}
+		}
+		if (size(available_fems) != 0){
+			mother = sample(available_fems, 1, replace = F);
+		} else {
+			mother = sample(fems, 1, replace = F); // If no mother from unique brood found, pick randomly		
+		}
+		for (man in mans){
+			matching_ids_man = setIntersection(man.pedigreeParentIDs, brood_ids);
+			if (size(matching_ids_man) == 0) {
+				available_mans = c(available_mans, man);
+			}
+		}
+		
 		while (T) {
-			father = sample(mans, 1, replace = F);
-			if (father.pedigreeGrandparentIDs[1] != mother.pedigreeGrandparentIDs[1]){
+			if (size(available_mans) != 0){
+				father = sample(available_mans, 1, replace = F);
+			} else {
+				father = sample(mans, 1, replace = F); // if no father meets the conditions, pick randomly
+			}
+			if (father.pedigreeParentIDs[1] != mother.pedigreeParentIDs[1]){
 				break;
 			}
 		}
@@ -45,15 +69,21 @@ initialize() {
 		// Add the female to "mothers" and the male to the "fathers"
 		mothers = c(mothers, mother);
 		fathers = c(fathers, father);
+		// Populate the brood IDs vector
+		brood_ids = c(brood_ids, mother.pedigreeParentIDs, father.pedigreeParentIDs);
 		
 		// Remove the mother and father from their respective pools of possible parents
-		fems = fems[fems.index != mother.index]; // Pop brood id
-		mans = mans[mans.index != father.index];
+		available_fems = available_fems[available_fems.index != mother.index];
+		available_mans = available_mans[available_mans.index != father.index];
 	}
 	
 	// Tag mothers and fathers with unique numbers to ensure they remain in the correct order
 	mothers.tag = c(1:20);
 	fathers.tag = c(1:20);
+	//cat("Generation " + sim.cycle + " mothers:\n");
+	//print(mothers);
+	//cat("Generation " + sim.cycle + " fathers:\n");
+	//print(fathers);
 }
 
 // Mate-choice callback
