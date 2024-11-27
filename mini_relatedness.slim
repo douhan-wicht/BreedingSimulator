@@ -32,58 +32,94 @@ initialize() {
 	mothers = c();
 	fathers = c();
 	brood_ids = asInteger(c());
-	available_fems = c();
-	available_mans = c();
+	invalid_mothers_selected = 0;
+	invalid_fathers_selected = 0;
 	
-	while (size(mothers) < 20) {
-		// Select one female and one male from different broods
+	
+	while (size(mothers) < MPrs & size(fathers) < MPrs) {
+		available_fems = c();
+		available_mans = c();
+		
+		// Select one female
 		for (fem in fems){
 			matching_ids_fem = setIntersection(fem.pedigreeParentIDs, brood_ids);
 			if (size(matching_ids_fem) == 0){
 				available_fems = c(available_fems, fem);
 			}
 		}
-		if (size(available_fems) != 0){
+		cat("Size of available_fems: " + size(available_fems) + "\n");
+		
+		// Filtering females
+		if (size(available_fems) > 0){
 			mother = sample(available_fems, 1, replace = F);
 		} else {
-			mother = sample(fems, 1, replace = F); // If no mother from unique brood found, pick randomly		
+			mother = sample(fems, 1, replace = F); // If no mother from unique brood found, pick randomly
+			invalid_mothers_selected = invalid_mothers_selected + 1;
 		}
+		brood_ids = c(brood_ids, mother.pedigreeParentIDs); // Update brood list for mothers
+		fems = fems[fems.index != mother.index]; // Ensure removal from main pool		
+		
+		// Filtering males
 		for (man in mans){
 			matching_ids_man = setIntersection(man.pedigreeParentIDs, brood_ids);
 			if (size(matching_ids_man) == 0) {
 				available_mans = c(available_mans, man);
 			}
 		}
-		
-		while (T) {
-			if (size(available_mans) != 0){
+		cat("Size of available_mans: " + size(available_mans) + "\n");
+		// Selecting males	
+		if (size(available_mans) != 0){
+			iteration_count = 0;
+			while (T) {
+				iteration_count = iteration_count + 1;
+				if (iteration_count > 100) {
+					cat("Infinite loop detected while selecting father. Breaking loop1.\n");
+					break;
+				}
 				father = sample(available_mans, 1, replace = F);
-			} else {
-				father = sample(mans, 1, replace = F); // if no father meets the conditions, pick randomly
+				if (father.pedigreeParentIDs[1] != mother.pedigreeParentIDs[1]) {
+					break;
+				}
 			}
-			if (father.pedigreeParentIDs[1] != mother.pedigreeParentIDs[1]){
-				break;
+		} else {
+			iteration_count = 0;
+			while (T) {
+				iteration_count = iteration_count + 1;
+				if (iteration_count > 100) {
+					cat("Infinite loop detected while selecting father. Breaking loop2.\n");
+					break;
+				}
+				father = sample(mans, 1, replace = F);
+				if (father.pedigreeParentIDs[1] != mother.pedigreeParentIDs[1]) {
+					break;
+				}
 			}
+			invalid_fathers_selected = invalid_fathers_selected + 1;
 		}
+		
+		// Populate the father brood IDs vector
+		brood_ids = c(brood_ids, father.pedigreeParentIDs);
+		mans = mans[mans.index != father.index]; // Ensure removal from main pool
 		
 		// Add the female to "mothers" and the male to the "fathers"
 		mothers = c(mothers, mother);
 		fathers = c(fathers, father);
-		// Populate the brood IDs vector
-		brood_ids = c(brood_ids, mother.pedigreeParentIDs, father.pedigreeParentIDs);
-		
-		// Remove the mother and father from their respective pools of possible parents
-		available_fems = available_fems[available_fems.index != mother.index];
-		available_mans = available_mans[available_mans.index != father.index];
+			
 	}
 	
 	// Tag mothers and fathers with unique numbers to ensure they remain in the correct order
-	mothers.tag = c(1:20);
-	fathers.tag = c(1:20);
-	//cat("Generation " + sim.cycle + " mothers:\n");
-	//print(mothers);
-	//cat("Generation " + sim.cycle + " fathers:\n");
-	//print(fathers);
+	
+	for (i in 0:(size(mothers)-1)) {
+		mothers[i].tag = i+1;
+	}
+	for (i in 0:(size(fathers)-1)) {
+		fathers[i].tag = i+1;
+	}
+	cat("Number of mothers:" + size(mothers));
+	cat("Number of fathers:" + size(fathers));
+	cat("Invalid mothers selected (non-unique brood): " + invalid_mothers_selected + ".\n");
+	cat("Invalid fathers selected (non-unique brood): " + invalid_fathers_selected + ".\n");
+
 }
 
 // Mate-choice callback
@@ -97,6 +133,7 @@ initialize() {
 		matchingMale = males[males.tag == individual.tag];
 		
 		return(matchingMale[0]);
+	
 	}
 }
 
