@@ -6,7 +6,7 @@ mating_strategies=("genetic_load")
 # Run the burn-in phase
 echo "Starting burn-in phase..."
 for i in {1..3}; do
-    slim -d TotalLength=1000000 -d runID=$i -d NBurn=5000 ../burnin/burnin.slim
+    slim -d TotalLength=1000000 -d runID=$i -d NBurn=5000 ./burnin.slim
 done
 echo "Burn-in phase completed."
 
