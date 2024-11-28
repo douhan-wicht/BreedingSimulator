@@ -1,115 +1,126 @@
-// slim  -d TotalLength=1000000 -d runID=1 -d NBurn=10000 -d NGen=100 -d Mating='"random_mating"' ../2_monogamous_random_mating.slim
 // set up a simple neutral simulation
 initialize() {
 	initializeSLiMOptions(keepPedigrees = T);
 	defineConstant("MPrs",20); // defines number of mating pairs
 	initializeMutationRate(1e-7);
-	// m1 mutation type: neutral
 	initializeMutationType("m1", 0.5, "f", 0.0); // neutral
 	initializeMutationType("m2", 0.5, "e", 0.05); // beneficial
 	initializeMutationType("m3", 0.1, "g", -0.1, 0.2); // deleterious
 	initializeSex("A");
 	
-	// g1 genomic element type: uses m1 for all mutations
 	initializeGenomicElementType("g1", m1, 1.0);
 	initializeGenomicElementType("g2", c(m1, m2, m3), c(0.67,0.03,0.3));
-//	NBurn=10000;
 	
-
+	// Uncomment if not used as a parameter in the terminal	
+	//	NBurn=10000;
 	
-	
-		
-
 	initializeRecombinationRate(1e-8);
-
-
-//    TotalLength = 1000000;
-
-    // Create exons (70% of the genome) and introns (30% of the genome)
-    // Ensure exon-intron alternation
-    genomicElementStart = 0;
-    exonSize = asInteger(TotalLength * 0.7);  // Total exon size
-    intronSize = asInteger(TotalLength * 0.3); // Total intron size
-    nExons= asInteger(TotalLength * 1e-4);
-    
-        
-
-    exonLength = asInteger(exonSize / nExons);   // Divide into n exons
-    intronLength = asInteger(intronSize / nExons); // Divide into n introns
-
-    for (i in 0:(nExons-1)) {
-        // Define an exon
-                    initializeGenomicElement(g2, genomicElementStart, genomicElementStart + intronLength - 1);
-            genomicElementStart = genomicElementStart + intronLength;
-
-
-        // Define an intron if there's space
-        if (genomicElementStart + intronLength - 1 < TotalLength) {
-                initializeGenomicElement(g1, genomicElementStart, asInteger(genomicElementStart + exonLength - 1));
-        genomicElementStart = genomicElementStart + exonLength;
-
-        }
-    }
+	
+	// Uncomment if not used as a parameter in the terminal
+	//	TotalLength = 1000000;
+	
+	// Create exons (70% of the genome) and introns (30% of the genome) and insure alternation
+	genomicElementStart = 0;
+	exonSize = asInteger(TotalLength * 0.7);  // Total exon size
+	intronSize = asInteger(TotalLength * 0.3); // Total intron size
+	nExons= asInteger(TotalLength * 1e-4);
+	
+	exonLength = asInteger(exonSize / nExons);   // Divide into n exons
+	intronLength = asInteger(intronSize / nExons); // Divide into n introns
+	
+	for (i in 0:(nExons-1)) {
+		// Define an exon
+		initializeGenomicElement(g2, genomicElementStart, genomicElementStart + intronLength - 1);
+		genomicElementStart = genomicElementStart + intronLength;
+		
+		// Define an intron if there's space
+		if (genomicElementStart + intronLength - 1 < TotalLength) {
+			initializeGenomicElement(g1, genomicElementStart, asInteger(genomicElementStart + exonLength - 1));
+			genomicElementStart = genomicElementStart + exonLength;
+		}
+	}
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
+// Function that calculates genetic load and fitness from individuals
+function (s) getPopSumm(o pop, i sampleSize) {
+	
+	Pop_size = pop.individualCount;
+	if (Pop_size < sampleSize) {
+		sampleSize = Pop_size;
+	}
+	
+	mNeutral=sim.mutationTypes[sim.mutationTypes.id==1]; // identifies neutral mutations in the simulation (m1)
+	i=pop.sampleIndividuals(sampleSize); // samples individuals from the population
+	indvCount=length(i);		// returns the length of sampled individuals
+	m = i.uniqueMutations;   // obtains the mutations from the sampled individuals
+	m_uniq = unique(m);		// obtains the mutations that are unique
+	m_uniq=m_uniq[m_uniq.mutationType!=mNeutral];  // removes the neutral mutations
+	Mutcount=length(m_uniq);   // counts the unique mutations
+	freqMut=sim.mutationFrequencies(pop,m_uniq);   // returns the frequencies of the unique mutations within the population
+	ScoefMut=abs(m_uniq.selectionCoeff);   // returns the selection coefficients of the mutations 
+	DcoefMut=m_uniq.mutationType.dominanceCoeff; // returns the dominance coefficients of the mutations 
+	totalLoad=sum(freqMut*ScoefMut);  // calculates the genetic load by summing the multiplication of the frequenies by the selection coefficients
+	relzLoad_homo=sum(freqMut^2*ScoefMut); // calculates the homozygous realised load by summing the multiplication of the frequenies squared by the selection coefficients
+	relzLoad_hetero=2*sum(freqMut*(1-freqMut)*ScoefMut*DcoefMut); // calculates the heterozygous realised load by summing the multiplication of the frequenies by by 1-frequencies and by the selection coefficients and by the dominance coefficients
+	relzLoad=sum(freqMut^2*ScoefMut)+ (2*sum(freqMut*(1-freqMut)*ScoefMut*DcoefMut)); // calculates the realised load by adding to the homozygous realised load to the heterozygous realised load
+	mskLoad=sum(freqMut*ScoefMut) - sum(freqMut^2*ScoefMut) - (2*sum(freqMut*(1-freqMut)*ScoefMut*DcoefMut)); // calculates the masked load by subtrating the realised load from the genetic load
+	
+	fitness_indv=c(); // creates empty array to store individual fitness
+	for(indv in pop.individuals){  // goes through each individual
+		// Calculate individual fitness
+		muts0_m2 = indv.genomes[0].mutations;  // obtains the mutations of each chromosome in each individuals
+		muts1_m2 = indv.genomes[1].mutations;
+		HOMO_m2=setIntersection(muts0_m2,muts1_m2);  // mutations cross referenced to determine whether they are homozoygous or heterozyoous
+		HETERO_m2=setSymmetricDifference(muts0_m2,muts1_m2);
+		if(length(HETERO_m2)>0){fit_hetero=1-(abs(HETERO_m2.selectionCoeff)*HETERO_m2.mutationType.dominanceCoeff);}
+		if(length(HETERO_m2)==0){fit_hetero=1;}  // calculates the reduction in fitness contributed to by heteorzygous or homozygous mutations if any
+		fit_homo=1-abs(HOMO_m2.selectionCoeff);
+		if(length(fit_homo)==0){fit_homo=1;}
+		indv_fit=product(c(fit_hetero,fit_homo)); // calculates the fitness of the individual by obtaining the product of the fitness deficit of the heterozygous and homozygous mutations
+		fitness_indv=c(fitness_indv,indv_fit); // adds the individual's fitness to the array
+	}
+	
+	fitness_cached=pop.cachedFitness(pop.individuals.index);
+	//fitness_cached=pop.cachedFitness(NULL);
+	
+	
+	out=sim.cycle +"\t"+ pop.id +"\t"+ indvCount +"\t"+ Mutcount +"\t"+ Pop_size +"\t"+ totalLoad +"\t"+ relzLoad +"\t"+ relzLoad_homo +"\t"+ relzLoad_hetero +"\t"+ mskLoad +"\t"+mean(fitness_indv)+"\t"+sd(fitness_indv)+"\t"+mean(fitness_cached)+"\t"+sd(fitness_cached);
+	return(out);
+}
 
 // create a population of 500 individuals
 1 early() {
 	sim.addSubpop("p1", 500);
-	
 }
 
+// Import the burnin population
 1 late() {
-	sim.readFromPopulationFile("Burnin_" + NBurn + "n_" + runID + ".txt");
+	sim.readFromPopulationFile("0_Data/" + "Burnin_" + NBurn + "n_" + runID + ".txt");
 }
 
+// Output population statistics and write them into a file
+(NBurn + 1) early() {
+	// Print headers for the population statistics
+	writeFile("1_Outputs/1_Random-Relatedness/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", "Generation\t" + "PopulationID\t" + "SampleSize\t" + "UniqueMutations\t" + "PopulationSize\t" + "totalLoad\t" + "RelzLoad\t" + "RelzLoadHomo\t" + "RelzLoadHetero\t" + "MskLoad\t" + "MeanFitness\t" + "SdFitness\t" + "MeanFitnessCached\t" + "SdFitnessCached\t", append = T);
+}
 
-//run for 10k gen
-//1000 late() { sim.outputFixedMutations();}
-
-
-
+// Output population statistics and write them into a file
 (NBurn + 1):(NBurn + NGen + 1) early() {
-// Print mean heterozygosity across the population
-heterozygosity = "Generation: " + sim.cycle + ", Heterozygosity: " + asString(calcHeterozygosity(p1.genomes)) + "\n";
-writeFile(Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", heterozygosity, append = T);  // Output statistics
+	// Print the calculated loads and the fitness	
+	writeFile("1_Outputs/1_Random-Relatedness/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", getPopSumm(p1, 100), append = T);
 }
-
-
-
-//
-//20000 late() {
-//// Print mean heterozygosity across the population
-//heterozygosity = calcHeterozygosity(p1.genomes);
-//cat("Mean heterozygosity = " + heterozygosity + "\n");
-//}
-
-// add early event where i seletect the pair of males and females
-
 
 (NBurn + 1): early() {
-		inds = p1.individuals; 
-		fems = inds[inds.sex=="F"];			// subsets males and females from yinds
-		mans = inds[inds.sex=="M"];
-		p1.individuals.tag = 0;				// tags all individuals with a 0
-		if (sim.cycle == 1) {		// if in first generation of regime (first since loading), MPrs females and MPrs males are chosen at random  
-			mothers = sample(fems,MPrs);
-			fathers = sample(mans,MPrs);
-		}
-		// In first generation of regime (the first newly produced since loading), one male and one female are selected at random. they are added to the group of "mothers" and "fathers" and will be mating pairs in the next generation and will be removed from the pool females and males from which pairs can be drawn. 
-		else {
+	inds = p1.individuals;
+	fems = inds[inds.sex=="F"];  // subsets males and females from yinds
+	mans = inds[inds.sex=="M"];
+	p1.individuals.tag = 0;  // tags all individuals with a 0
+	if (sim.cycle == 1) {  // if in first generation of regime (first since loading), MPrs females and MPrs males are chosen at random  
+		mothers = sample(fems,MPrs);
+		fathers = sample(mans,MPrs);
+	}
+	
+	else {
 		mothers = c();  // creates groups of mothers and fathers
 		fathers = c();
 		for (m in 0:(MPrs-1)) {
@@ -119,54 +130,30 @@ writeFile(Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.tx
 			fathers = c(fathers,father);
 			fems = fems[fems.index!=mother.index]; // removes the female and male from their respective pools of possible parents
 			mans = mans[mans.index!=father.index];
-			}
-
 		}
-		mothers.tag = c(1:MPrs); // tags the mothers and fathers with unique numbers to ensure the remain in the correct order
-		fathers.tag = c(1:MPrs);
-
-//
-//		if (sim.cycle == 1) {		// if in first generation, then no output parents 
-//		    cat("Generation " + sim.cycle + "\n");
-//    inds = p1.individuals; // Get all individuals in the population
-//    for (ind in inds) {
-//        cat("ID: " + ind.pedigreeID + ", Sex: " + ind.sex + ", Tag: " + ind.tag + "\n");
-//    }
-//    cat("\n"); // Add a blank line for readability
-//		}
-//		else {
-//		    cat("Generation " + sim.cycle + "\n");
-//    inds = p1.individuals; // Get all individuals in the population
-//    for (ind in inds) {
-//        cat("ID: " + ind.pedigreeID + ", Sex: " + ind.sex + ", Tag: " + ind.tag + ", mother: " + ind.pedigreeParentIDs[0] + ", father: " + ind.pedigreeParentIDs[1] + "\n");
-//    }
-//    cat("\n"); // Add a blank line for readability
-//    }
-}	
-
-
-
-
+	
+	}
+	mothers.tag = c(1:MPrs); // tags the mothers and fathers with unique numbers to ensure the remain in the correct order
+	fathers.tag = c(1:MPrs);
+}
 
 // Mate-choice callback
 (NBurn + 1): mateChoice() {
-    if (individual.tag == 0) {
-        // If the female has no tag, return no mating probability
-        return float(0);
-    } else {
-        // If the female has a tag, select the male with the same tag
-        males = p1.individuals[p1.individuals.sex == "M"]; // Get all males
-        matchingMale = males[males.tag == individual.tag];
-
-            return(matchingMale[0]);
-
-        }
-    }
-
+	if (individual.tag == 0) {
+		// If the female has no tag, return no mating probability
+		return float(0);
+	} else {
+		// If the female has a tag, select the male with the same tag
+		males = p1.individuals[p1.individuals.sex == "M"]; // Get all males
+		matchingMale = males[males.tag == individual.tag];
+		
+		return(matchingMale[0]);
+	}
+}
 
 (NBurn + NGen + 1) late() {
-	    sim.outputFull( Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + ".txt", pedigreeIDs = T);
-    sim.simulationFinished();
+	sim.outputFull("1_Outputs/1_Random-Relatedness/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + ".txt", pedigreeIDs = T);
+	sim.simulationFinished();
 }
 
 

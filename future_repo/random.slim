@@ -93,11 +93,6 @@ function (s) getPopSumm(o pop, i sampleSize) {
 	sim.addSubpop("p1", 500);
 }
 
-// create a population of 500 individuals
-1 early() {
-	sim.addSubpop("p1", 500);
-}
-
 // Import the burnin population
 1 late() {
 	sim.readFromPopulationFile("0_Data/" + "Burnin_" + NBurn + "n_" + runID + ".txt");
@@ -106,17 +101,17 @@ function (s) getPopSumm(o pop, i sampleSize) {
 // Output population statistics and write them into a file
 (NBurn + 1) early() {
 	// Print headers for the population statistics
-	writeFile("1_Outputs/3_Genetic-Load/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", "Generation\t" + "PopulationID\t" + "SampleSize\t" + "UniqueMutations\t" + "PopulationSize\t" + "totalLoad\t" + "RelzLoad\t" + "RelzLoadHomo\t" + "RelzLoadHetero\t" + "MskLoad\t" + "MeanFitness\t" + "SdFitness\t" + "MeanFitnessCached\t" + "SdFitnessCached\t", append = T);
+	writeFile("1_Outputs/0_Random/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", "Generation\t" + "PopulationID\t" + "SampleSize\t" + "UniqueMutations\t" + "PopulationSize\t" + "totalLoad\t" + "RelzLoad\t" + "RelzLoadHomo\t" + "RelzLoadHetero\t" + "MskLoad\t" + "MeanFitness\t" + "SdFitness\t" + "MeanFitnessCached\t" + "SdFitnessCached\t", append = T);
 }
 
 // Output population statistics and write them into a file
 (NBurn + 1):(NBurn + NGen + 1) early() {
 	// Print the calculated loads and the fitness	
-	writeFile("1_Outputs/3_Genetic-Load/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", getPopSumm(p1, 100), append = T);
+	writeFile("1_Outputs/0_Random/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", getPopSumm(p1, 100), append = T);
 }
 
 // Output a population file at the end of the simulation
 (NBurn + NGen + 1) late() {
-	sim.outputFull( Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + ".txt", pedigreeIDs = T);
+	sim.outputFull("1_Outputs/0_Random/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + ".txt", pedigreeIDs = T);
 	sim.simulationFinished();
 }

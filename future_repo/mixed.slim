@@ -1,20 +1,23 @@
+// set up a simple neutral simulation
 initialize() {
-	initializeSLiMOptions(keepPedigrees = T); // Allows us to access the relatedness() method
-	defineConstant("MPrs",20); // Define number of mating pairs
-	initializeMutationRate(1e-7); // Mutation rate
+	initializeSLiMOptions(keepPedigrees = T);
+	defineConstant("MPrs",20); // defines number of mating pairs
+	initializeMutationRate(1e-7);
 	initializeMutationType("m1", 0.5, "f", 0.0); // neutral
 	initializeMutationType("m2", 0.5, "e", 0.05); // beneficial
 	initializeMutationType("m3", 0.1, "g", -0.1, 0.2); // deleterious
-	initializeGenomicElementType("g1", m1, 1.0); // intron
-	initializeGenomicElementType("g2", c(m1, m2, m3), c(0.67,0.03,0.3)); // exon
-	initializeRecombinationRate(1e-8);   // Recombination rate
-	initializeSex("A"); // Initialize sex on autosome chromosome
+	initializeSex("A");
+	
+	initializeGenomicElementType("g1", m1, 1.0);
+	initializeGenomicElementType("g2", c(m1, m2, m3), c(0.67,0.03,0.3));
 	
 	// Uncomment if not used as a parameter in the terminal	
 	//	NBurn=10000;
 	
+	initializeRecombinationRate(1e-8);
+	
 	// Uncomment if not used as a parameter in the terminal
-	//    TotalLength = 1000000;
+	//	TotalLength = 1000000;
 	
 	// Create exons (70% of the genome) and introns (30% of the genome) and insure alternation
 	genomicElementStart = 0;
@@ -36,13 +39,10 @@ initialize() {
 			genomicElementStart = genomicElementStart + exonLength;
 		}
 	}
-
 }
 
-// Function that calculates genetic load and fitness from individuals from population pop. To calculate genetic load sampleSize indivuidualss are selected from the population.
-
-function (s) getPopSumm(o pop, i sampleSize)
-{
+// Function that calculates genetic load and fitness from individuals
+function (s) getPopSumm(o pop, i sampleSize) {
 	
 	Pop_size = pop.individualCount;
 	if (Pop_size < sampleSize) {    // If the sampleSize is bigger than the size of the population, sampleSize becomes the population size
@@ -113,15 +113,20 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
 
 // Import the burnin population
 1 late() {
-	sim.readFromPopulationFile("Burnin_" + NBurn + "n_" + runID + ".txt");
+	sim.readFromPopulationFile("0_Data/" + "Burnin_" + NBurn + "n_" + runID + ".txt");
+}
+
+// Output population statistics and write them into a file
+(NBurn + 1) early() {
+	// Print headers for the population statistics
+	writeFile("1_Outputs/4_Mixed/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", "Generation\t" + "PopulationID\t" + "SampleSize\t" + "UniqueMutations\t" + "PopulationSize\t" + "totalLoad\t" + "RelzLoad\t" + "RelzLoadHomo\t" + "RelzLoadHetero\t" + "MskLoad\t" + "MeanFitness\t" + "SdFitness\t" + "MeanFitnessCached\t" + "SdFitnessCached\t", append = T);
 }
 
 // Output population statistics and write them into a file
 (NBurn + 1):(NBurn + NGen + 1) early() {
 	// Print the calculated loads and the fitness	
-	writeFile(Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", getPopSumm(p1, 100), append = T);
+	writeFile("1_Outputs/4_Mixed/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", getPopSumm(p1, 100), append = T);
 }
-
 
 // Add early event where we select the pairs of males and females (Genetic Load)
 (NBurn+1): early() {
@@ -299,8 +304,8 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
 	}
 }
 
-c(1000, 2000) late() {
-	// Print mean heterozygosity across the population
-	heterozygosity = calcHeterozygosity(p1.genomes);
-	cat("Mean heterozygosity = " + heterozygosity + "\n");
+// Output a population file at the end of the simulation
+(NBurn + NGen + 1) late() {
+	sim.outputFull("1_Outputs/4_Mixed/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + ".txt", pedigreeIDs = T);
+	sim.simulationFinished();
 }
