@@ -17,7 +17,7 @@ initialize() {
 	initializeRecombinationRate(1e-8);
 	
 	// Uncomment if not used as a parameter in the terminal
-	//    TotalLength = 1000000;
+	//	TotalLength = 1000000;
 	
 	// Create exons (70% of the genome) and introns (30% of the genome) and insure alternation
 	genomicElementStart = 0;
@@ -101,9 +101,10 @@ function (s) getPopSumm(o pop, i sampleSize)
 	}
 	
 	fitness_cached=pop.cachedFitness(pop.individuals.index);
+	//fitness_cached=pop.cachedFitness(NULL);
 	
 	
-	out=sim.generation +"\t"+ pop.id +"\t"+ indvCount +"\t"+ Mutcount +"\t"+ Pop_size +"\t"+ "NA" +"\t"+ totalLoad +"\t"+ relzLoad +"\t"+ relzLoad_homo +"\t"+ relzLoad_hetero +"\t"+ mskLoad +"\t"+mean(fitness_indv)+"\t"+sd(fitness_indv)+"\t"+mean(fitness_cached)+"\t"+sd(fitness_cached);
+	out=sim.cycle +"\t"+ pop.id +"\t"+ indvCount +"\t"+ Mutcount +"\t"+ Pop_size +"\t"+ "NA" +"\t"+ totalLoad +"\t"+ relzLoad +"\t"+ relzLoad_homo +"\t"+ relzLoad_hetero +"\t"+ mskLoad +"\t"+mean(fitness_indv)+"\t"+sd(fitness_indv)+"\t"+mean(fitness_cached)+"\t"+sd(fitness_cached);
 	return(out);
 }
 
