@@ -75,6 +75,8 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
 	// Print mean heterozygosity across the population
 	heterozygosity = "Generation: " + sim.cycle + ", Heterozygosity: " + asString(calcHeterozygosity(p1.genomes)) + "\n";
 	writeFile(Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", heterozygosity, append = T);
+	// Print the calculated loads and the fitness	
+	// writeFile(Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", getPopSumm(p1, 100), append = T);
 }
 
 // Select the mating pairs

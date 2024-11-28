@@ -1,0 +1,202 @@
+Generation: 10001, Heterozygosity: 4.2769e-05
+
+Generation: 10002, Heterozygosity: 4.15854e-05
+
+Generation: 10003, Heterozygosity: 3.99229e-05
+
+Generation: 10004, Heterozygosity: 3.953e-05
+
+Generation: 10005, Heterozygosity: 4.10185e-05
+
+Generation: 10006, Heterozygosity: 4.22685e-05
+
+Generation: 10007, Heterozygosity: 4.19439e-05
+
+Generation: 10008, Heterozygosity: 4.02333e-05
+
+Generation: 10009, Heterozygosity: 3.64314e-05
+
+Generation: 10010, Heterozygosity: 3.60513e-05
+
+Generation: 10011, Heterozygosity: 3.66192e-05
+
+Generation: 10012, Heterozygosity: 3.69951e-05
+
+Generation: 10013, Heterozygosity: 3.78264e-05
+
+Generation: 10014, Heterozygosity: 3.89545e-05
+
+Generation: 10015, Heterozygosity: 3.98679e-05
+
+Generation: 10016, Heterozygosity: 4.02235e-05
+
+Generation: 10017, Heterozygosity: 4.03215e-05
+
+Generation: 10018, Heterozygosity: 4.03694e-05
+
+Generation: 10019, Heterozygosity: 4.08776e-05
+
+Generation: 10020, Heterozygosity: 4.09601e-05
+
+Generation: 10021, Heterozygosity: 4.07944e-05
+
+Generation: 10022, Heterozygosity: 4.14504e-05
+
+Generation: 10023, Heterozygosity: 4.19339e-05
+
+Generation: 10024, Heterozygosity: 4.1516e-05
+
+Generation: 10025, Heterozygosity: 4.14208e-05
+
+Generation: 10026, Heterozygosity: 4.21237e-05
+
+Generation: 10027, Heterozygosity: 4.22325e-05
+
+Generation: 10028, Heterozygosity: 4.24536e-05
+
+Generation: 10029, Heterozygosity: 4.20241e-05
+
+Generation: 10030, Heterozygosity: 3.9398e-05
+
+Generation: 10031, Heterozygosity: 3.90891e-05
+
+Generation: 10032, Heterozygosity: 3.88077e-05
+
+Generation: 10033, Heterozygosity: 3.44874e-05
+
+Generation: 10034, Heterozygosity: 3.48267e-05
+
+Generation: 10035, Heterozygosity: 3.46479e-05
+
+Generation: 10036, Heterozygosity: 3.26545e-05
+
+Generation: 10037, Heterozygosity: 3.31212e-05
+
+Generation: 10038, Heterozygosity: 3.1708e-05
+
+Generation: 10039, Heterozygosity: 3.13046e-05
+
+Generation: 10040, Heterozygosity: 3.6805e-05
+
+Generation: 10041, Heterozygosity: 3.59232e-05
+
+Generation: 10042, Heterozygosity: 3.84145e-05
+
+Generation: 10043, Heterozygosity: 3.72032e-05
+
+Generation: 10044, Heterozygosity: 3.71002e-05
+
+Generation: 10045, Heterozygosity: 3.7462e-05
+
+Generation: 10046, Heterozygosity: 3.73572e-05
+
+Generation: 10047, Heterozygosity: 3.54065e-05
+
+Generation: 10048, Heterozygosity: 3.1741e-05
+
+Generation: 10049, Heterozygosity: 2.95972e-05
+
+Generation: 10050, Heterozygosity: 2.84657e-05
+
+Generation: 10051, Heterozygosity: 3.03406e-05
+
+Generation: 10052, Heterozygosity: 3.11111e-05
+
+Generation: 10053, Heterozygosity: 3.0004e-05
+
+Generation: 10054, Heterozygosity: 3.29919e-05
+
+Generation: 10055, Heterozygosity: 3.50982e-05
+
+Generation: 10056, Heterozygosity: 3.98662e-05
+
+Generation: 10057, Heterozygosity: 4.26277e-05
+
+Generation: 10058, Heterozygosity: 4.29639e-05
+
+Generation: 10059, Heterozygosity: 4.3173e-05
+
+Generation: 10060, Heterozygosity: 4.27775e-05
+
+Generation: 10061, Heterozygosity: 4.18403e-05
+
+Generation: 10062, Heterozygosity: 4.1382e-05
+
+Generation: 10063, Heterozygosity: 4.00241e-05
+
+Generation: 10064, Heterozygosity: 3.9932e-05
+
+Generation: 10065, Heterozygosity: 4.11979e-05
+
+Generation: 10066, Heterozygosity: 4.06074e-05
+
+Generation: 10067, Heterozygosity: 3.90966e-05
+
+Generation: 10068, Heterozygosity: 3.92291e-05
+
+Generation: 10069, Heterozygosity: 3.9564e-05
+
+Generation: 10070, Heterozygosity: 4.03381e-05
+
+Generation: 10071, Heterozygosity: 4.06169e-05
+
+Generation: 10072, Heterozygosity: 4.21667e-05
+
+Generation: 10073, Heterozygosity: 3.98024e-05
+
+Generation: 10074, Heterozygosity: 4.21488e-05
+
+Generation: 10075, Heterozygosity: 4.3119e-05
+
+Generation: 10076, Heterozygosity: 4.3209e-05
+
+Generation: 10077, Heterozygosity: 4.23544e-05
+
+Generation: 10078, Heterozygosity: 4.1733e-05
+
+Generation: 10079, Heterozygosity: 4.25105e-05
+
+Generation: 10080, Heterozygosity: 4.61729e-05
+
+Generation: 10081, Heterozygosity: 4.66558e-05
+
+Generation: 10082, Heterozygosity: 4.70294e-05
+
+Generation: 10083, Heterozygosity: 4.75778e-05
+
+Generation: 10084, Heterozygosity: 4.70424e-05
+
+Generation: 10085, Heterozygosity: 4.70241e-05
+
+Generation: 10086, Heterozygosity: 4.70675e-05
+
+Generation: 10087, Heterozygosity: 4.73554e-05
+
+Generation: 10088, Heterozygosity: 4.70637e-05
+
+Generation: 10089, Heterozygosity: 4.64215e-05
+
+Generation: 10090, Heterozygosity: 4.52687e-05
+
+Generation: 10091, Heterozygosity: 4.54022e-05
+
+Generation: 10092, Heterozygosity: 4.58629e-05
+
+Generation: 10093, Heterozygosity: 4.4877e-05
+
+Generation: 10094, Heterozygosity: 4.45821e-05
+
+Generation: 10095, Heterozygosity: 4.29976e-05
+
+Generation: 10096, Heterozygosity: 4.1972e-05
+
+Generation: 10097, Heterozygosity: 4.28143e-05
+
+Generation: 10098, Heterozygosity: 4.14619e-05
+
+Generation: 10099, Heterozygosity: 4.23196e-05
+
+Generation: 10100, Heterozygosity: 3.97723e-05
+
+Generation: 10101, Heterozygosity: 4.21987e-05
+
