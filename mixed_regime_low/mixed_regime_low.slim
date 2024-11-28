@@ -86,8 +86,27 @@ function (s) getPopSumm(o pop, i sampleSize)
 	return(out);
 }
 
+// Function to count shared mutations
+function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
+	muts1 = c();
+	muts2 = c();
+	for (type in mutationTypes){
+		muts1 = unique(c(muts1, ind1.genomes.positionsOfMutationsOfType(type))); // Retrieve deleterious mutations for individual 1
+		muts2 = unique(c(muts2, ind2.genomes.positionsOfMutationsOfType(type))); // Retrieve deleterious mutations for individual 2
+	}
+	shared_count = 0; // Counting
+	for (mut in muts1) {
+		for (pos in muts2){
+			if (mut == pos){
+				shared_count = shared_count + 1;
+				//cat("Match: " + mut + "\n"); // Print the matching positions
+			}
+		}
+	}
+	return shared_count;
+}
 
-// create a population of 500 individuals
+// Create a population of 500 individuals
 1 early() {
 	sim.addSubpop("p1", 500);
 }
@@ -103,23 +122,98 @@ function (s) getPopSumm(o pop, i sampleSize)
 	writeFile(Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", getPopSumm(p1, 100), append = T);
 }
 
-// Add early event where we select the pairs of males and females from different broods
-(NBurn + 1): early() { // Start breeding regime after the burnin
+
+// Add early event where we select the pairs of males and females (Genetic Load)
+(NBurn+1): early() {
 	inds = p1.individuals;
 	// Subset males and females from the population
 	fems = inds[inds.sex=="F"];
 	mans = inds[inds.sex=="M"];
 	p1.individuals.tag = 0; // Tag all individuals with a 0
 	
-	// Initialize mothers and fathers as empty vectors
+	// Create groups of mothers and fathers
 	mothers = c();
 	fathers = c();
+	
+	// Initialize the previous candidates vector
+	previous_candidates = c();
+	
+	
+	// Select 20 breeding pairs
+	while (size(mothers) < (round(MPrs*(2/3)))) {
+		// Select a mother from the pool of available females
+		mother = sample(fems, 1, replace = F);
+		
+		// Initialize some state parameters and counters
+		found_a_daddy = F;
+		allowed_mutations = 0;
+		
+		// Retry loop: Keep increasing allowed_mutations until a mate is found
+		while (!found_a_daddy) {
+			// Check if an already sequenced male is adequate, providing there is at least 1
+			if (size(previous_candidates) != 0) {
+				// Go through the list of previous candidates
+				for (potential_father in previous_candidates) {
+					if (countSharedMuts(mother, potential_father, c(m1, m2, m3)) <= allowed_mutations) {
+						// Add the mating pair to the mothers and fathers vectors
+						mothers = c(mothers, mother);
+						fathers = c(fathers, potential_father);
+						
+						// Remove the mother and father from their respective pools of possible parents
+						fems = fems[fems.index != mother.index];
+						mans = mans[mans.index != potential_father.index];
+						
+						// Remove the now father from the list of previously unsuccessful candidates
+						previous_candidates = previous_candidates[previous_candidates.index != potential_father.index];
+						
+						found_a_daddy = T;
+						
+						break;
+					}
+				}
+			}
+			
+			if (found_a_daddy) {
+				// Exit the retry loop if a mate has been found in the previous candidates
+				break;
+			}
+			
+			// Sequence a new potential father if no adequate mate has been found in the previous candidates
+			father = sample(mans, 1, replace = F);
+			
+			if (countSharedMuts(mother, father, c(m1, m2, m3)) <= allowed_mutations) {
+				// Add the mating pair to the mothers and fathers vectors
+				mothers = c(mothers, mother);
+				fathers = c(fathers, father);
+				
+				// Remove the mother and father from their respective pools of possible parents
+				fems = fems[fems.index != mother.index];
+				mans = mans[mans.index != father.index];
+				
+				found_a_daddy = T;
+				
+				break;
+			}
+			
+			// If no suitable father was found, add the potential father to previous_candidates
+			previous_candidates = c(previous_candidates, father);
+			
+			// Increment allowed_mutations to allow more mismatches in the next iteration
+			allowed_mutations = allowed_mutations + 1;
+		}
+	}
+	
+	
+	
+	// Add early event where we select the pairs of males and females (Relatedness)
 	brood_ids = asInteger(c());
-	invalid_mothers_selected = 0;
-	invalid_fathers_selected = 0;
+	mating_pairs = round(MPrs*(2/3));
+	//cat("Number of mating pairs: " + mating_pairs);
+	cat("Number of mothers: " + size(mothers) + ".\n");
 	
-	
-	while (size(mothers) < MPrs & size(fathers) < MPrs) {
+	while (size(mothers) < MPrs) {
+		//cat("Number of mating pairs :" + mating_pairs);
+		//print(size(fems));
 		available_fems = c();
 		available_mans = c();
 		
@@ -136,7 +230,6 @@ function (s) getPopSumm(o pop, i sampleSize)
 			mother = sample(available_fems, 1, replace = F);
 		} else {
 			mother = sample(fems, 1, replace = F); // If no mother from unique brood found, pick randomly
-			invalid_mothers_selected = invalid_mothers_selected + 1;
 		}
 		brood_ids = c(brood_ids, mother.pedigreeParentIDs); // Update brood list for mothers
 		fems = fems[fems.index != mother.index]; // Ensure removal from main pool		
@@ -174,7 +267,6 @@ function (s) getPopSumm(o pop, i sampleSize)
 					break;
 				}
 			}
-			invalid_fathers_selected = invalid_fathers_selected + 1;
 		}
 		
 		// Populate the father brood IDs vector
@@ -186,11 +278,11 @@ function (s) getPopSumm(o pop, i sampleSize)
 		fathers = c(fathers, father);
 	
 	}
-	
 	// Tag mothers and fathers with unique numbers to ensure they remain in the correct order
 	
 	mothers.tag = c(1:MPrs);
 	fathers.tag = c(1:MPrs);
+	cat("Number of mating pairs: " + size(mothers) + ".\n");
 }
 
 // Mate-choice callback
@@ -204,12 +296,11 @@ function (s) getPopSumm(o pop, i sampleSize)
 		matchingMale = males[males.tag == individual.tag];
 		
 		return(matchingMale[0]);
-	
 	}
 }
 
-// Output a population file at the end of the simulation
-(NBurn + NGen + 1) late() {
-	sim.outputFull( Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + ".txt", pedigreeIDs = T);
-	sim.simulationFinished();
+c(1000, 2000) late() {
+	// Print mean heterozygosity across the population
+	heterozygosity = calcHeterozygosity(p1.genomes);
+	cat("Mean heterozygosity = " + heterozygosity + "\n");
 }
