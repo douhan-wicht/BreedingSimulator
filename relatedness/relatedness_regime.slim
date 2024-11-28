@@ -1,0 +1,168 @@
+initialize() {
+	initializeSLiMOptions(keepPedigrees = T); // Allows us to access the relatedness() method
+	defineConstant("MPrs",20); // Define number of mating pairs
+	initializeMutationRate(1e-7); // Mutation rate
+	initializeMutationType("m1", 0.5, "f", 0.0); // neutral
+	initializeMutationType("m2", 0.5, "e", 0.05); // beneficial
+	initializeMutationType("m3", 0.1, "g", -0.1, 0.2); // deleterious
+	initializeGenomicElementType("g1", m1, 1.0); // intron
+	initializeGenomicElementType("g2", c(m1, m2, m3), c(0.67,0.03,0.3)); // exon
+	initializeRecombinationRate(1e-8);   // Recombination rate
+	initializeSex("A"); // Initialize sex on autosome chromosome
+	
+	// Uncomment if not used as a parameter in the terminal	
+	//	NBurn=10000;
+	
+	// Uncomment if not used as a parameter in the terminal
+	//    TotalLength = 1000000;
+	
+	// Create exons (70% of the genome) and introns (30% of the genome) and insure alternation
+	genomicElementStart = 0;
+	exonSize = asInteger(TotalLength * 0.7);  // Total exon size
+	intronSize = asInteger(TotalLength * 0.3); // Total intron size
+	nExons= asInteger(TotalLength * 1e-4);
+	
+	exonLength = asInteger(exonSize / nExons);   // Divide into n exons
+	intronLength = asInteger(intronSize / nExons); // Divide into n introns
+	
+	for (i in 0:(nExons-1)) {
+		// Define an exon
+		initializeGenomicElement(g2, genomicElementStart, genomicElementStart + intronLength - 1);
+		genomicElementStart = genomicElementStart + intronLength;
+		
+		// Define an intron if there's space
+		if (genomicElementStart + intronLength - 1 < TotalLength) {
+			initializeGenomicElement(g1, genomicElementStart, asInteger(genomicElementStart + exonLength - 1));
+			genomicElementStart = genomicElementStart + exonLength;
+		}
+	}	
+	
+}
+
+// create a population of 500 individuals
+1 early() {
+	sim.addSubpop("p1", 500);
+}
+
+// Import the burnin population
+1 late() {
+	sim.readFromPopulationFile("Burnin_" + NBurn + "n_" + runID + ".txt");
+}
+
+// Output population statistics and write them into a file
+(NBurn + 1):(NBurn + NGen + 1) early() {
+	// Print mean heterozygosity across the population
+	heterozygosity = "Generation: " + sim.cycle + ", Heterozygosity: " + asString(calcHeterozygosity(p1.genomes)) + "\n";
+	writeFile(Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", heterozygosity, append = T);
+}
+
+// Add early event where we select the pairs of males and females from different broods
+(NBurn + 1): early() { // Start breeding regime after the burnin
+	inds = p1.individuals;
+	// Subset males and females from the population
+	fems = inds[inds.sex=="F"];
+	mans = inds[inds.sex=="M"];
+	p1.individuals.tag = 0; // Tag all individuals with a 0
+	
+	// Initialize mothers and fathers as empty vectors
+	mothers = c();
+	fathers = c();
+	brood_ids = asInteger(c());
+	invalid_mothers_selected = 0;
+	invalid_fathers_selected = 0;
+	
+	
+	while (size(mothers) < MPrs & size(fathers) < MPrs) {
+		available_fems = c();
+		available_mans = c();
+		
+		// Select one female
+		for (fem in fems){
+			matching_ids_fem = setIntersection(fem.pedigreeParentIDs, brood_ids);
+			if (size(matching_ids_fem) == 0){
+				available_fems = c(available_fems, fem);
+			}
+		}
+		
+		// Filtering females
+		if (size(available_fems) > 0){
+			mother = sample(available_fems, 1, replace = F);
+		} else {
+			mother = sample(fems, 1, replace = F); // If no mother from unique brood found, pick randomly
+			invalid_mothers_selected = invalid_mothers_selected + 1;
+		}
+		brood_ids = c(brood_ids, mother.pedigreeParentIDs); // Update brood list for mothers
+		fems = fems[fems.index != mother.index]; // Ensure removal from main pool		
+		
+		// Filtering males
+		for (man in mans){
+			matching_ids_man = setIntersection(man.pedigreeParentIDs, brood_ids);
+			if (size(matching_ids_man) == 0) {
+				available_mans = c(available_mans, man);
+			}
+		}
+
+		// Selecting males	
+		if (size(available_mans) != 0){
+			iteration_count = 0;
+			while (T) {
+				iteration_count = iteration_count + 1;
+				if (iteration_count > 100) {
+					break;
+				}
+				father = sample(available_mans, 1, replace = F);
+				if (father.pedigreeParentIDs[1] != mother.pedigreeParentIDs[1]) {
+					break;
+				}
+			}
+		} else {
+			iteration_count = 0;
+			while (T) {
+				iteration_count = iteration_count + 1;
+				if (iteration_count > 100) {
+					break;
+				}
+				father = sample(mans, 1, replace = F);
+				if (father.pedigreeParentIDs[1] != mother.pedigreeParentIDs[1]) {
+					break;
+				}
+			}
+			invalid_fathers_selected = invalid_fathers_selected + 1;
+		}
+		
+		// Populate the father brood IDs vector
+		brood_ids = c(brood_ids, father.pedigreeParentIDs);
+		mans = mans[mans.index != father.index]; // Ensure removal from main pool
+		
+		// Add the female to "mothers" and the male to the "fathers"
+		mothers = c(mothers, mother);
+		fathers = c(fathers, father);
+			
+	}
+	
+	// Tag mothers and fathers with unique numbers to ensure they remain in the correct order
+	
+	mothers.tag = c(1:MPrs);
+	fathers.tag = c(1:MPrs);
+}
+
+// Mate-choice callback
+1000: mateChoice() {
+	if (individual.tag == 0) {
+		// If the female has no tag, return no mating probability
+		return float(0);
+	} else {
+		// If the female has a tag, select the male with the same tag
+		males = p1.individuals[p1.individuals.sex == "M"]; // Get all males
+		matchingMale = males[males.tag == individual.tag];
+		
+		return(matchingMale[0]);
+	
+	}
+}
+
+// Output a population file at the end of the simulation
+(NBurn + NGen + 1) late() {
+	sim.outputFull( Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + ".txt", pedigreeIDs = T);
+	sim.simulationFinished();
+}
