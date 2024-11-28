@@ -62,13 +62,13 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
 
 // Function that calculates genetic load and fitness from individuals from population pop. To calculate genetic load sampleSize indivuidualss are selected from the population.
 
-function (s) getPopSumm(o pop, i sampleSize)
-{
+function (s) getPopSumm(o pop, i sampleSize) {
 	
 	Pop_size = pop.individualCount;
-	if (Pop_size < sampleSize) {    // If the sampleSize is bigger than the size of the population, sampleSize becomes the population size
+	if (Pop_size < sampleSize) {
 		sampleSize = Pop_size;
 	}
+	
 	mNeutral=sim.mutationTypes[sim.mutationTypes.id==1]; // identifies neutral mutations in the simulation (m1)
 	i=pop.sampleIndividuals(sampleSize); // samples individuals from the population
 	indvCount=length(i);		// returns the length of sampled individuals
