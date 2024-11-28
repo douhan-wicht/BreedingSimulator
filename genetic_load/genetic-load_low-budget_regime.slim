@@ -62,13 +62,13 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
 
 // Function that calculates genetic load and fitness from individuals from population pop. To calculate genetic load sampleSize indivuidualss are selected from the population.
 
-function (s) getPopSumm(o pop, i sampleSize)  
-	{
+function (s) getPopSumm(o pop, i sampleSize)
+{
 	
-	Pop_size = pop.individualCount; 
+	Pop_size = pop.individualCount;
 	if (Pop_size < sampleSize) {    // If the sampleSize is bigger than the size of the population, sampleSize becomes the population size
 		sampleSize = Pop_size;
-	} 
+	}
 	mNeutral=sim.mutationTypes[sim.mutationTypes.id==1]; // identifies neutral mutations in the simulation (m1)
 	i=pop.sampleIndividuals(sampleSize); // samples individuals from the population
 	indvCount=length(i);		// returns the length of sampled individuals
@@ -94,7 +94,7 @@ function (s) getPopSumm(o pop, i sampleSize)
 		HETERO_m2=setSymmetricDifference(muts0_m2,muts1_m2);
 		if(length(HETERO_m2)>0){fit_hetero=1-(abs(HETERO_m2.selectionCoeff)*HETERO_m2.mutationType.dominanceCoeff);}
 		if(length(HETERO_m2)==0){fit_hetero=1;}  // calculates the reduction in fitness contributed to by heteorzygous or homozygous mutations if any
-		fit_homo=1-abs(HOMO_m2.selectionCoeff); 
+		fit_homo=1-abs(HOMO_m2.selectionCoeff);
 		if(length(fit_homo)==0){fit_homo=1;}
 		indv_fit=product(c(fit_hetero,fit_homo)); // calculates the fitness of the individual by obtaining the product of the fitness deficit of the heterozygous and homozygous mutations
 		fitness_indv=c(fitness_indv,indv_fit); // adds the individual's fitness to the array
@@ -104,7 +104,7 @@ function (s) getPopSumm(o pop, i sampleSize)
 	//fitness_cached=pop.cachedFitness(NULL);
 	
 	
-	out=sim.cycle +"\t"+ pop.id +"\t"+ indvCount +"\t"+ Mutcount +"\t"+ Pop_size +"\t"+ "NA" +"\t"+ totalLoad +"\t"+ relzLoad +"\t"+ relzLoad_homo +"\t"+ relzLoad_hetero +"\t"+ mskLoad +"\t"+mean(fitness_indv)+"\t"+sd(fitness_indv)+"\t"+mean(fitness_cached)+"\t"+sd(fitness_cached);
+	out=sim.cycle +"\t"+ pop.id +"\t"+ indvCount +"\t"+ Mutcount +"\t"+ Pop_size +"\t"+ totalLoad +"\t"+ relzLoad +"\t"+ relzLoad_homo +"\t"+ relzLoad_hetero +"\t"+ mskLoad +"\t"+mean(fitness_indv)+"\t"+sd(fitness_indv)+"\t"+mean(fitness_cached)+"\t"+sd(fitness_cached);
 	return(out);
 }
 
@@ -116,6 +116,12 @@ function (s) getPopSumm(o pop, i sampleSize)
 // Import the burnin population
 1 late() {
 	sim.readFromPopulationFile("Burnin_" + NBurn + "n_" + runID + ".txt");
+}
+
+// Output population statistics and write them into a file
+(NBurn + 1) early() {
+	// Print headers for the population statistics
+	writeFile(Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", "Generation\t" + "PopulationID\t" + "SampleSize\t" + "UniqueMutations\t" + "PopulationSize\t" + "totalLoad\t" + "RelzLoad\t" + "RelzLoadHomo\t" + "RelzLoadHetero\t" + "MskLoad\t" + "MeanFitness\t" + "SdFitness\t" + "MeanFitnessCached\t" + "SdFitnessCached\t", append = T);
 }
 
 // Output population statistics and write them into a file

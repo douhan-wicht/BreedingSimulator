@@ -1,0 +1,2 @@
+Generation	PopulationID	SampleSize	UniqueMutations	PopulationSize	totalLoad	RelzLoad	RelzLoadHomo	RelzLoadHetero	MskLoad	MeanFitness	SdFitness	MeanFitnessCached	SdFitnessCached	
+5001	1	100	49	500	0.598596	0.563926	0.446811	0.117115	0.0346701	0.549773	0.0274426	1.64626	0.0613991
