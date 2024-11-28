@@ -115,19 +115,19 @@ function (s) getPopSumm(o pop, i sampleSize) {
 
 // Import the burnin population
 1 late() {
-	sim.readFromPopulationFile("Burnin_" + NBurn + "n_" + runID + ".txt");
+	sim.readFromPopulationFile("0_Data/" + "Burnin_" + NBurn + "n_" + runID + ".txt");
 }
 
 // Output population statistics and write them into a file
 (NBurn + 1) early() {
 	// Print headers for the population statistics
-	writeFile(Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", "Generation\t" + "PopulationID\t" + "SampleSize\t" + "UniqueMutations\t" + "PopulationSize\t" + "totalLoad\t" + "RelzLoad\t" + "RelzLoadHomo\t" + "RelzLoadHetero\t" + "MskLoad\t" + "MeanFitness\t" + "SdFitness\t" + "MeanFitnessCached\t" + "SdFitnessCached\t", append = T);
+	writeFile("1_Outputs/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", "Generation\t" + "PopulationID\t" + "SampleSize\t" + "UniqueMutations\t" + "PopulationSize\t" + "totalLoad\t" + "RelzLoad\t" + "RelzLoadHomo\t" + "RelzLoadHetero\t" + "MskLoad\t" + "MeanFitness\t" + "SdFitness\t" + "MeanFitnessCached\t" + "SdFitnessCached\t", append = T);
 }
 
 // Output population statistics and write them into a file
 (NBurn + 1):(NBurn + NGen + 1) early() {
 	// Print the calculated loads and the fitness	
-	writeFile(Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", getPopSumm(p1, 100), append = T);
+	writeFile("1_Outputs/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", getPopSumm(p1, 100), append = T);
 }
 
 // Select the mating pairs
