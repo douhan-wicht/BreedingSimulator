@@ -2,17 +2,41 @@ initialize() {
 	initializeSLiMOptions(keepPedigrees = T); // Allows us to access the relatedness() method
 	defineConstant("MPrs",20); // Define number of mating pairs
 	initializeMutationRate(1e-7); // Mutation rate
-	initializeMutationType("m1", 0.5, "f", 0.0); // Neutral mutation
-	initializeMutationType("m2", 0.1, "g", -0.1, 0.2); // Deleterious mutation
-	initializeMutationType("m3", 0.5, "e", 0.05); // Beneficial mutation
-	initializeMutationType("m4", 0.5, "f", 0.0); // Neutral mutation, exons
-	initializeGenomicElementType("g1", c(m1), 1.0); // Intron
-	initializeGenomicElementType("g2", c(m2, m3, m4), c(0.67, 0.3, 0.03));
-	initializeGenomicElement(g1, 0, 39999);  // Intron, 40 kB
-	initializeGenomicElement(g2, 40000, 59999); // Exon, 20 kB
-	initializeGenomicElement(g1, 60000, 99999); // Intron, 40kB
+	initializeMutationType("m1", 0.5, "f", 0.0); // neutral
+	initializeMutationType("m2", 0.5, "e", 0.05); // beneficial
+	initializeMutationType("m3", 0.1, "g", -0.1, 0.2); // deleterious
+	initializeGenomicElementType("g1", m1, 1.0); // intron
+	initializeGenomicElementType("g2", c(m1, m2, m3), c(0.67,0.03,0.3)); // exon
 	initializeRecombinationRate(1e-8);   // Recombination rate
 	initializeSex("A"); // Initialize sex on autosome chromosome
+	
+	// Uncomment if not used as a parameter in the terminal	
+	//	NBurn=10000;
+	
+	// Uncomment if not used as a parameter in the terminal
+	//    TotalLength = 1000000;
+	
+	// Create exons (70% of the genome) and introns (30% of the genome) and insure alternation
+	genomicElementStart = 0;
+	exonSize = asInteger(TotalLength * 0.7);  // Total exon size
+	intronSize = asInteger(TotalLength * 0.3); // Total intron size
+	nExons= asInteger(TotalLength * 1e-4);
+	
+	exonLength = asInteger(exonSize / nExons);   // Divide into n exons
+	intronLength = asInteger(intronSize / nExons); // Divide into n introns
+	
+	for (i in 0:(nExons-1)) {
+		// Define an exon
+		initializeGenomicElement(g2, genomicElementStart, genomicElementStart + intronLength - 1);
+		genomicElementStart = genomicElementStart + intronLength;
+		
+		// Define an intron if there's space
+		if (genomicElementStart + intronLength - 1 < TotalLength) {
+			initializeGenomicElement(g1, genomicElementStart, asInteger(genomicElementStart + exonLength - 1));
+			genomicElementStart = genomicElementStart + exonLength;
+		}
+	}	
+	
 }
 
 // create a population of 500 individuals
@@ -20,8 +44,20 @@ initialize() {
 	sim.addSubpop("p1", 500);
 }
 
+// Import the burnin population
+1 late() {
+	sim.readFromPopulationFile("Burnin_" + NBurn + "n_" + runID + ".txt");
+}
+
+// Output population statistics and write them into a file
+(NBurn + 1):(NBurn + NGen + 1) early() {
+	// Print mean heterozygosity across the population
+	heterozygosity = "Generation: " + sim.cycle + ", Heterozygosity: " + asString(calcHeterozygosity(p1.genomes)) + "\n";
+	writeFile(Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", heterozygosity, append = T);
+}
+
 // Add early event where we select the pairs of males and females from different broods
-1000: early() {
+(NBurn + 1): early() { // Start breeding regime after the burnin
 	inds = p1.individuals;
 	// Subset males and females from the population
 	fems = inds[inds.sex=="F"];
@@ -72,7 +108,6 @@ initialize() {
 			while (T) {
 				iteration_count = iteration_count + 1;
 				if (iteration_count > 100) {
-					cat("Infinite loop detected while selecting father. Breaking loop1.\n");
 					break;
 				}
 				father = sample(available_mans, 1, replace = F);
@@ -85,7 +120,6 @@ initialize() {
 			while (T) {
 				iteration_count = iteration_count + 1;
 				if (iteration_count > 100) {
-					cat("Infinite loop detected while selecting father. Breaking loop2.\n");
 					break;
 				}
 				father = sample(mans, 1, replace = F);
@@ -110,9 +144,6 @@ initialize() {
 	
 	mothers.tag = c(1:MPrs);
 	fathers.tag = c(1:MPrs);
-	cat("Invalid mothers selected (non-unique brood): " + invalid_mothers_selected + ".\n");
-	cat("Invalid fathers selected (non-unique brood): " + invalid_fathers_selected + ".\n");
-
 }
 
 // Mate-choice callback
@@ -130,8 +161,8 @@ initialize() {
 	}
 }
 
-c(1000, 2000) late() {
-	// Print mean heterozygosity across the population
-	heterozygosity = calcHeterozygosity(p1.genomes);
-	cat("Mean heterozygosity = " + heterozygosity + "\n");
+// Output a population file at the end of the simulation
+(NBurn + NGen + 1) late() {
+	sim.outputFull( Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + ".txt", pedigreeIDs = T);
+	sim.simulationFinished();
 }
