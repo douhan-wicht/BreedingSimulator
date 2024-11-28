@@ -108,12 +108,8 @@ initialize() {
 	
 	// Tag mothers and fathers with unique numbers to ensure they remain in the correct order
 	
-	for (i in 0:(size(mothers)-1)) {
-		mothers[i].tag = i+1;
-	}
-	for (i in 0:(size(fathers)-1)) {
-		fathers[i].tag = i+1;
-	}
+	mothers.tag = c(1:MPrs);
+	fathers.tag = c(1:MPrs);
 	cat("Invalid mothers selected (non-unique brood): " + invalid_mothers_selected + ".\n");
 	cat("Invalid fathers selected (non-unique brood): " + invalid_fathers_selected + ".\n");
 
