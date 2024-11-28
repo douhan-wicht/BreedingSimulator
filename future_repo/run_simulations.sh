@@ -14,7 +14,7 @@ echo "Burn-in phase completed."
 echo "Starting genetic load mating phase..."
 for i in {1..3}; do
     for j in "${mating_strategies[@]}"; do
-        slim -d TotalLength=1000000 -d runID=$i -d NBurn=5000 -d NGen=100 -d Mating='"genetic_load"' ./genetic-load_low-budget_regime.slim
+        slim -d TotalLength=1000000 -d runID=$i -d NBurn=5000 -d NGen=100 -d Mating='"genetic_load"' ./genetic_load.slim
     done
 done
 echo "Genetic load mating phase completed."
