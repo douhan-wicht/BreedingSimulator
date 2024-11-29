@@ -101,7 +101,7 @@ function (s) getPopSumm(o pop, i sampleSize) {
 // Output population statistics and write them into a file
 (NBurn + 1) early() {
 	// Print headers for the population statistics
-	writeFile("1_Outputs/0_Random/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", "Generation\t" + "PopulationID\t" + "SampleSize\t" + "UniqueMutations\t" + "PopulationSize\t" + "totalLoad\t" + "RelzLoad\t" + "RelzLoadHomo\t" + "RelzLoadHetero\t" + "MskLoad\t" + "MeanFitness\t" + "SdFitness\t" + "MeanFitnessCached\t" + "SdFitnessCached\t", append = T);
+	writeFile("1_Outputs/0_Random/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", "Generation\t" + "PopulationID\t" + "SampleSize\t" + "UniqueMutations\t" + "PopulationSize\t" + "totalLoad\t" + "RelzLoad\t" + "RelzLoadHomo\t" + "RelzLoadHetero\t" + "MskLoad\t" + "MeanFitness\t" + "SdFitness\t" + "MeanFitnessCached\t" + "SdFitnessCached\t", append = F);
 }
 
 // Output population statistics and write them into a file
