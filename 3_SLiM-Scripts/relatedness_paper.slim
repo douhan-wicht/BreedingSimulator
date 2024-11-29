@@ -1,23 +1,20 @@
-// set up a simple neutral simulation
 initialize() {
-	initializeSLiMOptions(keepPedigrees = T);
-	defineConstant("MPrs",20); // defines number of mating pairs
-	initializeMutationRate(1e-7);
+	initializeSLiMOptions(keepPedigrees = T); // Allows us to access the relatedness() method
+	defineConstant("MPrs",20); // Define number of mating pairs
+	initializeMutationRate(1e-7); // Mutation rate
 	initializeMutationType("m1", 0.5, "f", 0.0); // neutral
 	initializeMutationType("m2", 0.5, "e", 0.05); // beneficial
 	initializeMutationType("m3", 0.1, "g", -0.1, 0.2); // deleterious
-	initializeSex("A");
-	
-	initializeGenomicElementType("g1", m1, 1.0);
-	initializeGenomicElementType("g2", c(m1, m2, m3), c(0.67,0.03,0.3));
+	initializeGenomicElementType("g1", m1, 1.0); // intron
+	initializeGenomicElementType("g2", c(m1, m2, m3), c(0.67,0.03,0.3)); // exon
+	initializeRecombinationRate(1e-8);   // Recombination rate
+	initializeSex("A"); // Initialize sex on autosome chromosome
 	
 	// Uncomment if not used as a parameter in the terminal	
 	//	NBurn=10000;
 	
-	initializeRecombinationRate(1e-8);
-	
 	// Uncomment if not used as a parameter in the terminal
-	//	TotalLength = 1000000;
+	    // TotalLength = 1000000;
 	
 	// Create exons (70% of the genome) and introns (30% of the genome) and insure alternation
 	genomicElementStart = 0;
@@ -39,35 +36,18 @@ initialize() {
 			genomicElementStart = genomicElementStart + exonLength;
 		}
 	}
+
 }
 
-// Function to count shared mutations
-function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
-	muts1 = c();
-	muts2 = c();
-	for (type in mutationTypes){
-		muts1 = unique(c(muts1, ind1.genomes.positionsOfMutationsOfType(type))); // Retrieve deleterious mutations for individual 1
-		muts2 = unique(c(muts2, ind2.genomes.positionsOfMutationsOfType(type))); // Retrieve deleterious mutations for individual 2
-	}
-	shared_count = 0; // Counting
-	for (mut in muts1) {
-		for (pos in muts2){
-			if (mut == pos){
-				shared_count = shared_count + 1;
-			}
-		}
-	}
-	return shared_count;
-}
+// Function that calculates genetic load and fitness from individuals from population pop. To calculate genetic load sampleSize indivuidualss are selected from the population.
 
-// Function that calculates genetic load and fitness from individuals
-function (s) getPopSumm(o pop, i sampleSize) {
+function (s) getPopSumm(o pop, i sampleSize)
+{
 	
 	Pop_size = pop.individualCount;
-	if (Pop_size < sampleSize) {
+	if (Pop_size < sampleSize) {    // If the sampleSize is bigger than the size of the population, sampleSize becomes the population size
 		sampleSize = Pop_size;
 	}
-	
 	mNeutral=sim.mutationTypes[sim.mutationTypes.id==1]; // identifies neutral mutations in the simulation (m1)
 	i=pop.sampleIndividuals(sampleSize); // samples individuals from the population
 	indvCount=length(i);		// returns the length of sampled individuals
@@ -100,7 +80,6 @@ function (s) getPopSumm(o pop, i sampleSize) {
 	}
 	
 	fitness_cached=pop.cachedFitness(pop.individuals.index);
-	//fitness_cached=pop.cachedFitness(NULL);
 	
 	
 	out=sim.cycle +"\t"+ pop.id +"\t"+ indvCount +"\t"+ Mutcount +"\t"+ Pop_size +"\t"+ totalLoad +"\t"+ relzLoad +"\t"+ relzLoad_homo +"\t"+ relzLoad_hetero +"\t"+ mskLoad +"\t"+mean(fitness_indv)+"\t"+sd(fitness_indv)+"\t"+mean(fitness_cached)+"\t"+sd(fitness_cached);
@@ -120,112 +99,112 @@ function (s) getPopSumm(o pop, i sampleSize) {
 // Output population statistics and write them into a file
 (NBurn + 1) early() {
 	// Print headers for the population statistics
-	writeFile("1_Outputs/3_Genetic-Load/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", "Generation\t" + "PopulationID\t" + "SampleSize\t" + "UniqueMutations\t" + "PopulationSize\t" + "totalLoad\t" + "RelzLoad\t" + "RelzLoadHomo\t" + "RelzLoadHetero\t" + "MskLoad\t" + "MeanFitness\t" + "SdFitness\t" + "MeanFitnessCached\t" + "SdFitnessCached\t", append = F);
+	writeFile("1_Outputs/5_Relatedness_paper/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", "Generation\t" + "PopulationID\t" + "SampleSize\t" + "UniqueMutations\t" + "PopulationSize\t" + "totalLoad\t" + "RelzLoad\t" + "RelzLoadHomo\t" + "RelzLoadHetero\t" + "MskLoad\t" + "MeanFitness\t" + "SdFitness\t" + "MeanFitnessCached\t" + "SdFitnessCached\t", append = F);
 }
 
 // Output population statistics and write them into a file
 (NBurn + 1):(NBurn + NGen + 1) early() {
 	// Print the calculated loads and the fitness	
-	writeFile("1_Outputs/3_Genetic-Load/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", getPopSumm(p1, 100), append = T);
+	writeFile("1_Outputs/5_Relatedness_paper/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + "_popstats.txt", getPopSumm(p1, 100), append = T);
 }
 
-// Select the mating pairs
-(NBurn + 1): early() { // Start the breeding regime right after the burnin
+// Add early event where we select the pairs of males and females from different broods
+(NBurn + 1): early() { // Start breeding regime after the burnin
 	inds = p1.individuals;
-	
 	// Subset males and females from the population
 	fems = inds[inds.sex=="F"];
 	mans = inds[inds.sex=="M"];
+	p1.individuals.tag = 0; // Tag all individuals with a 0
 	
-	// Tag all individuals with a 0
-	p1.individuals.tag = 0;
-	
-	// Create groups of mothers and fathers
+	// Initialize mothers and fathers as empty vectors
 	mothers = c();
 	fathers = c();
+	brood_ids_mothers = asInteger(c());
+	brood_ids_fathers = asInteger(c());
+	invalid_mothers_selected = 0;
+	invalid_fathers_selected = 0;
 	
-	// Initialize the number of mating_pairs
-	mating_pairs = 0;
 	
-	// Initialize the previous candidates vector
-	previous_candidates = c();
-	
-	// Select 20 breeding pairs
-	while (mating_pairs < MPrs) {
-		// Select a mother from the pool of available females
-		mother = sample(fems, 1, replace = F);
+	while (size(mothers) < MPrs & size(fathers) < MPrs) {
+		available_fems = c();
+		available_mans = c();
 		
-		// Initialize some state parameters and counters
-		found_a_daddy = F;
-		allowed_mutations = 1;
+		// Select one female
+		for (fem in fems){
+			matching_ids_fem = setIntersection(fem.pedigreeParentIDs, brood_ids_mothers);
+			if (size(matching_ids_fem) == 0){
+				available_fems = c(available_fems, fem);
+			}
+		}
 		
-		// Retry loop: Keep increasing allowed_mutations until a mate is found
-		while (!found_a_daddy) {
-			// Check if an already sequenced male is adequate, providing there is at least 1
-			if (size(previous_candidates) != 0) {
-				// Go through the list of previous candidates
-				for (potential_father in previous_candidates) {
-					if (countSharedMuts(mother, potential_father, c(m2, m3)) <= allowed_mutations) {
-						// Attribute the same tag to the successful mating pair
-						mother.tag = mating_pairs + 1;
-						potential_father.tag = mating_pairs + 1;
-						
-						// Add the mating pair to the mothers and fathers vectors
-						mothers = c(mothers, mother);
-						fathers = c(fathers, potential_father);
-						
-						// Remove the mother and father from their respective pools of possible parents
-						fems = fems[fems.index != mother.index];
-						mans = mans[mans.index != potential_father.index];
-						
-						// Remove the now father from the list of previously unsuccessful candidates
-						previous_candidates = previous_candidates[previous_candidates.index != potential_father.index];
-						
-						// Increment the mating pairs counter
-						mating_pairs = mating_pairs + 1;
-						found_a_daddy = T;
-						
-						break;
-					}
+		// Filtering females
+		if (size(available_fems) > 0){
+			mother = sample(available_fems, 1, replace = F);
+		} else {
+			cat("No female from a unique brood found. Sampling randomly.\n");
+			mother = sample(fems, 1, replace = F); // If no mother from unique brood found, pick randomly
+			invalid_mothers_selected = invalid_mothers_selected + 1;
+		}
+		brood_ids_mothers = c(brood_ids_mothers, mother.pedigreeParentIDs); // Update brood list for mothers
+		fems = fems[fems.index != mother.index]; // Ensure removal from main pool		
+		
+		// Filtering males
+		for (man in mans){
+			matching_ids_man = setIntersection(man.pedigreeParentIDs, brood_ids_fathers);
+			if (size(matching_ids_man) == 0) {
+				available_mans = c(available_mans, man);
+			}
+		}
+		
+		// Selecting males	
+		if (size(available_mans) != 0){
+			iteration_count = 0;
+			while (T) {
+				iteration_count = iteration_count + 1;
+				if (iteration_count > 100) {
+					break;
+				}
+				father = sample(available_mans, 1, replace = F);
+				if (father.pedigreeParentIDs[1] != mother.pedigreeParentIDs[1]) {
+					break;
 				}
 			}
-			
-			if (found_a_daddy) {
-				// Exit the retry loop if a mate has been found in the previous candidates
-				break;
+		} else {
+			iteration_count = 0;
+			cat("No male from a unique brood found. Sampling randomly.\n");
+			while (T) {
+				iteration_count = iteration_count + 1;
+				if (iteration_count > 100) {
+					break;
+				}
+				father = sample(mans, 1, replace = F);
+				if (father.pedigreeParentIDs[1] != mother.pedigreeParentIDs[1]) {
+					break;
+				}
 			}
-			
-			// Sequence a new potential father if no adequate mate has been found in the previous candidates
-			father = sample(mans, 1, replace = F);
-			
-			if (countSharedMuts(mother, father, c(m2, m3)) <= allowed_mutations) {
-				// Attribute the same tag to the successful mating pair
-				mother.tag = mating_pairs + 1;
-				father.tag = mating_pairs + 1;
-				
-				// Add the mating pair to the mothers and fathers vectors
-				mothers = c(mothers, mother);
-				fathers = c(fathers, father);
-				
-				// Remove the mother and father from their respective pools of possible parents
-				fems = fems[fems.index != mother.index];
-				mans = mans[mans.index != father.index];
-				
-				// Increment the mating pairs counter
-				mating_pairs = mating_pairs + 1;
-				found_a_daddy = T;
-				
-				break;
-			}
-			
-			// If no suitable father was found, add the potential father to previous_candidates
-			previous_candidates = c(previous_candidates, father);
-			
-			// Increment allowed_mutations to allow more mismatches in the next iteration
-			allowed_mutations = allowed_mutations + 1;
+			invalid_fathers_selected = invalid_fathers_selected + 1;
 		}
+		
+		// Populate the father brood IDs vector
+		brood_ids_fathers = c(brood_ids_fathers, father.pedigreeParentIDs);
+		mans = mans[mans.index != father.index]; // Ensure removal from main pool
+		
+		// Add the female to "mothers" and the male to the "fathers"
+		mothers = c(mothers, mother);
+		fathers = c(fathers, father);
+		if (invalid_fathers_selected > 0) {
+		cat("Number of invalid fathers selected :" + invalid_fathers_selected + ".\n");
+		}
+		if (invalid_mothers_selected > 0) {
+		cat("Number of invalid mothers selected :" + invalid_mothers_selected + ".\n");
+		}
+	
 	}
-
+	
+	// Tag mothers and fathers with unique numbers to ensure they remain in the correct order
+	
+	mothers.tag = c(1:MPrs);
+	fathers.tag = c(1:MPrs);
 }
 
 // Mate-choice callback
@@ -239,11 +218,12 @@ function (s) getPopSumm(o pop, i sampleSize) {
 		matchingMale = males[males.tag == individual.tag];
 		
 		return(matchingMale[0]);
+	
 	}
 }
 
 // Output a population file at the end of the simulation
 (NBurn + NGen + 1) late() {
-	sim.outputFull("1_Outputs/3_Genetic-Load/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + ".txt", pedigreeIDs = T);
+	sim.outputFull("1_Outputs/5_Relatedness_paper/" + Mating + "_" + NBurn + "burn_" + NGen + "gen_" + runID + ".txt", pedigreeIDs = T);
 	sim.simulationFinished();
 }

@@ -151,7 +151,7 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
 		
 		// Initialize some state parameters and counters
 		found_a_daddy = F;
-		allowed_mutations = 0;
+		allowed_mutations = 1;
 		
 		// Retry loop: Keep increasing allowed_mutations until a mate is found
 		while (!found_a_daddy) {
@@ -159,7 +159,7 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
 			if (size(previous_candidates) != 0) {
 				// Go through the list of previous candidates
 				for (potential_father in previous_candidates) {
-					if (countSharedMuts(mother, potential_father, c(m1, m2, m3)) <= allowed_mutations) {
+					if (countSharedMuts(mother, potential_father, c(m2, m3)) <= allowed_mutations) {
 						// Add the mating pair to the mothers and fathers vectors
 						mothers = c(mothers, mother);
 						fathers = c(fathers, potential_father);
@@ -186,7 +186,7 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
 			// Sequence a new potential father if no adequate mate has been found in the previous candidates
 			father = sample(mans, 1, replace = F);
 			
-			if (countSharedMuts(mother, father, c(m1, m2, m3)) <= allowed_mutations) {
+			if (countSharedMuts(mother, father, c(m2, m3)) <= allowed_mutations) {
 				// Add the mating pair to the mothers and fathers vectors
 				mothers = c(mothers, mother);
 				fathers = c(fathers, father);
