@@ -62,6 +62,19 @@ for(i in 2:2){
 }
 mixed_df$PopulationID <- rep(1:2, each = 101)
 mixed_df$Generation <- mixed_df$Generation -5000
+
+# Load full random mating
+
+random_df <- read.table("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/0_Random/random_5000burn_100gen_1_popstats.txt", header = T)
+
+
+for(i in 2:2){
+  df <- read.table(paste0("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/0_Random/random_5000burn_100gen_", i, "_popstats.txt"), header = T)
+  random_df <- rbind(random_df, df)
+}
+
+random_df$Generation <- random_df$Generation - 5000
+random_df$PopulationID <- rep(1:2, each = 101)
 ```
 
 Now we do the mean of every replicat at each generation for genload
@@ -143,8 +156,29 @@ mean_gen_and_rel_df <- cbind(gen, heterozygo, genetic_load, realized_load, fitne
 colnames(mean_gen_and_rel_df) <- c("generation", "heterozygosity", "genetic_load", "realized_load", "fitness")
 ```
 
+now for full random
+
 ```{r}
-realized_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = realized_load), color = "orange", size = 1 ) +  geom_line(data = mean_rm_df, aes(x = generation, y = realized_load), color = "lightgray", size = 1 ) + 
+heterozygo <- c()
+genetic_load <- c()
+realized_load <- c()
+fitness <- c()
+gen <- c()
+for(i in 1:101){
+  generation <- random_df[random_df$Generation == i,]
+  heterozygo <- c(heterozygo, mean(generation$UniqueMutations))
+  genetic_load <- c(genetic_load, mean(generation$totalLoad))
+  realized_load <- c(realized_load, mean(generation$RelzLoad))
+  fitness <- c(fitness, mean(generation$MeanFitness))
+  gen <- c(gen, i)
+}
+mean_random_df <- as.data.frame(cbind(gen, heterozygo, genetic_load, realized_load, fitness))
+colnames(mean_random_df) <- c("generation", "heterozygosity", "genetic_load", "realized_load", "fitness")
+```
+
+
+```{r}
+realized_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = realized_load), color = "orange", size = 1 ) +  geom_line(data = mean_rm_df, aes(x = generation, y = realized_load), color = "lightgray", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = realized_load), color = "red", size = 1 ) + labs(x = "Generations", y = "Realized load") +
   theme(
     plot.background = element_rect(fill = "black"),
     panel.background = element_rect(fill = "black"),
@@ -154,10 +188,10 @@ realized_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generatio
     axis.title = element_text(color = "white"),
     plot.title = element_text(color = "white", hjust = 0.5),
     legend.background = element_rect(fill = "black"),
-    legend.text = element_text(color = "white")
+    legend.text = element_text(color = "white") 
   )
 
-load_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = genetic_load), color = "orange", size = 1 ) +  geom_line(data = mean_rm_df, aes(x = generation, y = genetic_load), color = "lightgray", size = 1 ) + theme(
+load_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = genetic_load), color = "orange", size = 1 ) +  geom_line(data = mean_rm_df, aes(x = generation, y = genetic_load), color = "lightgray", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = genetic_load), color = "red", size = 1 ) + labs(x = "Generations", y = "Genetic load") + theme(
     plot.background = element_rect(fill = "black"),
     panel.background = element_rect(fill = "black"),
     panel.grid.major = element_line(color = "gray30"),
@@ -166,9 +200,9 @@ load_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y
     axis.title = element_text(color = "white"),
     plot.title = element_text(color = "white", hjust = 0.5),
     legend.background = element_rect(fill = "black"),
-    legend.text = element_text(color = "white")
+    legend.text = element_text(color = "white") 
   )
-fitness_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = fitness), color = "orange", size = 1 ) + geom_line(data = mean_rm_df, aes(x = generation, y = fitness), color = "lightgray", size = 1 ) +  theme(
+fitness_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = fitness), color = "orange", size = 1 ) + geom_line(data = mean_rm_df, aes(x = generation, y = fitness), color = "lightgray", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = fitness), color = "red", size = 1 ) + labs(x = "Generations", y = "Fitness") + theme(
     plot.background = element_rect(fill = "black"),
     panel.background = element_rect(fill = "black"),
     panel.grid.major = element_line(color = "gray30"),
@@ -177,10 +211,11 @@ fitness_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation
     axis.title = element_text(color = "white"),
     plot.title = element_text(color = "white", hjust = 0.5),
     legend.background = element_rect(fill = "black"),
-    legend.text = element_text(color = "white")
+    legend.text = element_text(color = "white") 
+      
   )
 
-hetero_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = heterozygosity), color = "orange", size = 1 ) + geom_line(data = mean_rm_df, aes(x = generation, y = heterozygosity), color = "lightgray", size = 1 ) +  theme(
+hetero_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = heterozygosity), color = "orange", size = 1 ) + geom_line(data = mean_rm_df, aes(x = generation, y = heterozygosity), color = "lightgray", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = heterozygosity), color = "red", size = 1 ) + labs(x = "Generations", y = "Number of unique mutation") + theme(
     plot.background = element_rect(fill = "black"),
     panel.background = element_rect(fill = "black"),
     panel.grid.major = element_line(color = "gray30"),
@@ -189,13 +224,62 @@ hetero_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation,
     axis.title = element_text(color = "white"),
     plot.title = element_text(color = "white", hjust = 0.5),
     legend.background = element_rect(fill = "black"),
-    legend.text = element_text(color = "white")
+    legend.text = element_text(color = "white") 
   )
 
 combined_plot <- load_graph + realized_graph + fitness_graph + hetero_graph + plot_layout(ncol = 4)
-
+ggsave(
+  filename = "C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/2_R-Workspace/combined_plot.png",  # Full file path
+  plot = combined_plot,            # Plot object to save
+  width = 12,              # Width in inches
+  height = 6,             # Height in inches
+  dpi = 600               # Resolution
+)
 print(combined_plot)
 ```
+
+plot the legend 
+
+```{r}
+
+library(cowplot)
+
+# Create a dummy data frame for the legend
+legend_data <- data.frame(
+  x = c(1, 2, 3),  # Dummy x-values
+  y = c(1, 1, 1),  # Dummy y-values
+  group = factor(c("Minimize load", "Random mating related", "Random mating"))  # Factor for legend
+)
+
+# Generate a plot with an enlarged legend
+legend_plot <- ggplot(legend_data, aes(x = x, y = y, color = group)) +
+  geom_point(size = 5) +  # Add dummy points for the legend
+  scale_color_manual(
+    values = c(
+      "Minimize load" = "orange",
+      "Random mating related" = "lightgray",
+      "Random mating" = "red"
+    )
+  ) +
+  labs(color = "Group Legend") +  # Set the legend title
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",          # Place the legend at the bottom
+    legend.key.size = unit(2.5, "cm"),   # Increase size of legend keys
+    legend.text = element_text(size = 16, color = "white"),  # Increase size of legend text
+    legend.title = element_text(size = 18, color = "white"), # Increase size of legend title
+    legend.key = element_rect(fill = "black"),  # Black background for legend keys
+    panel.background = element_rect(fill = "black"),
+    plot.background = element_rect(fill = "black"),
+    axis.title = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    panel.grid = element_blank()
+  )
+# Extract only the legend part
+legend_plot
+```
+
 
 
 
