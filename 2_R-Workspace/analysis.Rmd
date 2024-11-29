@@ -280,6 +280,46 @@ legend_plot <- ggplot(legend_data, aes(x = x, y = y, color = group)) +
 legend_plot
 ```
 
+# Statistical analysis
+
+## Student t test within each regimes between the hundreds replicates
+
+```{r}
+
+# loading the end points for every replicates
+end_random_related <- rm_df[rm_df$Generation == 101,]
+end_random <- random_df[random_df$Generation == 101,]
+end_load <- genload_df[genload_df$Generation == 101,]
+end_related <- related_df[related_df$Generation == 101,]
+end_mixed <- mixed_df[mixed_df$Generation == 101,]
+```
+
+```{r}
+batch_ttest_load <- t.test(end_load$RelzLoad) ; batch_ttest_load
+batch_ttest_random <- t.test(end_random$RelzLoad) ; batch_ttest_random
+batch_ttest_random_related <- t.test(end_random_related$RelzLoad) ; batch_ttest_random_related
+batch_ttest_related <- t.test(end_related$RelzLoad)
+batch_ttest_mixed <- t.test(end_mixed$RelzLoad)
+```
+
+## Anova between all the regimes 100 batches
+
+```{r}
+end_load$regime <- "load"
+end_random_related$regime <- "random_related"
+end_random$regime <- "random"
+end_related$regime <- "related"
+end_mixed$regime <- "mixed"
+model_df <- rbind(end_load[])
+```
+
+
+
+
+
+
+
+
 
 
 
