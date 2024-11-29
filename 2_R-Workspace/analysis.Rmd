@@ -178,7 +178,7 @@ colnames(mean_random_df) <- c("generation", "heterozygosity", "genetic_load", "r
 
 
 ```{r}
-realized_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = realized_load), color = "orange", size = 1 ) +  geom_line(data = mean_rm_df, aes(x = generation, y = realized_load), color = "lightgray", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = realized_load), color = "red", size = 1 ) + labs(x = "Generations", y = "Realized load") +
+realized_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = realized_load), color = "indianred1", size = 1 ) +  geom_line(data = mean_rm_df, aes(x = generation, y = realized_load), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = realized_load), color = "yellow1", size = 1 ) + labs(x = "Generations", y = "Realized load") +
   theme(
     plot.background = element_rect(fill = "black"),
     panel.background = element_rect(fill = "black"),
@@ -191,7 +191,7 @@ realized_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generatio
     legend.text = element_text(color = "white") 
   )
 
-load_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = genetic_load), color = "orange", size = 1 ) +  geom_line(data = mean_rm_df, aes(x = generation, y = genetic_load), color = "lightgray", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = genetic_load), color = "red", size = 1 ) + labs(x = "Generations", y = "Genetic load") + theme(
+load_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = genetic_load), color = "indianred1", size = 1 ) +  geom_line(data = mean_rm_df, aes(x = generation, y = genetic_load), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = genetic_load), color = "yellow1", size = 1 ) + labs(x = "Generations", y = "Genetic load") + theme(
     plot.background = element_rect(fill = "black"),
     panel.background = element_rect(fill = "black"),
     panel.grid.major = element_line(color = "gray30"),
@@ -202,7 +202,7 @@ load_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y
     legend.background = element_rect(fill = "black"),
     legend.text = element_text(color = "white") 
   )
-fitness_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = fitness), color = "orange", size = 1 ) + geom_line(data = mean_rm_df, aes(x = generation, y = fitness), color = "lightgray", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = fitness), color = "red", size = 1 ) + labs(x = "Generations", y = "Fitness") + theme(
+fitness_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = fitness), color = "indianred1", size = 1 ) + geom_line(data = mean_rm_df, aes(x = generation, y = fitness), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = fitness), color = "yellow1", size = 1 ) + labs(x = "Generations", y = "Fitness") + theme(
     plot.background = element_rect(fill = "black"),
     panel.background = element_rect(fill = "black"),
     panel.grid.major = element_line(color = "gray30"),
@@ -215,7 +215,7 @@ fitness_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation
       
   )
 
-hetero_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = heterozygosity), color = "orange", size = 1 ) + geom_line(data = mean_rm_df, aes(x = generation, y = heterozygosity), color = "lightgray", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = heterozygosity), color = "red", size = 1 ) + labs(x = "Generations", y = "Number of unique mutation") + theme(
+hetero_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = heterozygosity), color = "indianred1", size = 1 ) + geom_line(data = mean_rm_df, aes(x = generation, y = heterozygosity), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = heterozygosity), color = "yellow1", size = 1 ) + labs(x = "Generations", y = "Number of unique mutation") + theme(
     plot.background = element_rect(fill = "black"),
     panel.background = element_rect(fill = "black"),
     panel.grid.major = element_line(color = "gray30"),
@@ -256,9 +256,9 @@ legend_plot <- ggplot(legend_data, aes(x = x, y = y, color = group)) +
   geom_point(size = 5) +  # Add dummy points for the legend
   scale_color_manual(
     values = c(
-      "Minimize load" = "orange",
-      "Random mating related" = "lightgray",
-      "Random mating" = "red"
+      "Minimize load" = "indianred1",
+      "Random mating related" = "orchid1",
+      "Random mating" = "yellow1"
     )
   ) +
   labs(color = "Group Legend") +  # Set the legend title
@@ -310,8 +310,14 @@ end_random_related$regime <- "random_related"
 end_random$regime <- "random"
 end_related$regime <- "related"
 end_mixed$regime <- "mixed"
-model_df <- rbind(end_load[])
+model_df <- rbind(end_load, end_mixed, end_random, end_random_related, end_related)
+model_df$regime <- factor(model_df$regime)
 ```
+```{r}
+mod <- aov(model_df$RelzLoad ~ model_df$regime)
+anova(mod)
+```
+
 
 
 
