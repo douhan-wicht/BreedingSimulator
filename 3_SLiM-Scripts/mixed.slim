@@ -82,7 +82,7 @@ function (s) getPopSumm(o pop, i sampleSize) {
 	fitness_cached=pop.cachedFitness(pop.individuals.index);
 	
 	
-	out=sim.cycle +"\t"+ pop.id +"\t"+ indvCount +"\t"+ Mutcount +"\t"+ Pop_size +"\t"+ "NA" +"\t"+ totalLoad +"\t"+ relzLoad +"\t"+ relzLoad_homo +"\t"+ relzLoad_hetero +"\t"+ mskLoad +"\t"+mean(fitness_indv)+"\t"+sd(fitness_indv)+"\t"+mean(fitness_cached)+"\t"+sd(fitness_cached);
+	out=sim.cycle +"\t"+ pop.id +"\t"+ indvCount +"\t"+ Mutcount +"\t"+ Pop_size +"\t"+ totalLoad +"\t"+ relzLoad +"\t"+ relzLoad_homo +"\t"+ relzLoad_hetero +"\t"+ mskLoad +"\t"+mean(fitness_indv)+"\t"+sd(fitness_indv)+"\t"+mean(fitness_cached)+"\t"+sd(fitness_cached);
 	return(out);
 }
 
