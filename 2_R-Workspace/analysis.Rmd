@@ -227,7 +227,7 @@ hetero_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation,
     legend.text = element_text(color = "white") 
   )
 
-combined_plot <- load_graph + realized_graph + fitness_graph + hetero_graph + plot_layout(ncol = 4)
+combined_plot <- load_graph + realized_graph + fitness_graph + hetero_graph + plot_layout(ncol = 4) + plot_annotation(theme = theme(plot.background = element_rect(fill = "black")))
 ggsave(
   filename = "C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/2_R-Workspace/combined_plot.png",  # Full file path
   plot = combined_plot,            # Plot object to save
