@@ -1,9 +1,8 @@
-# CHANGE PATH TO THE BASH SHELL FOR THE CLUSTER
 #!/run/current-system/sw/bin/bash 
-# ADD SLURM OPTIONS
 
 # Define the mating strategies
-mating_strategies=("random" "random-relatedness" "relatedness" "genetic_load" "mixed")
+# mating_strategies=("random" "random-relatedness" "relatedness" "genetic_load" "mixed")
+mating_strategies=("relatedness")
 
 # Run the burn-in phase
 echo "Starting burn-in phase..."
