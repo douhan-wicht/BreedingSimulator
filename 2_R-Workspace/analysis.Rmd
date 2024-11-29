@@ -17,51 +17,51 @@ library(patchwork)
 
 # Load random mating
 
-rm_df <- read.table("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/random_mating/random_mating_10000burn_100gen_1_popstats.txt")
+rm_df <- read.table("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/1_Random-Relatedness/random-relatedness_5000burn_100gen_1_popstats.txt", header = T)
 
 
-for(i in 2:10){
-  df <- read.table(paste0("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/random_mating/random_mating_10000burn_100gen_", i, "_popstats.txt"))
+for(i in 2:2){
+  df <- read.table(paste0("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/1_Random-Relatedness/random-relatedness_5000burn_100gen_", i, "_popstats.txt"), header = T)
   rm_df <- rbind(rm_df, df)
 }
-rm_df$generation <- rep(1:101, times = 10)
-rm_df$replicat <- rep(1:10, each = 101)
 
+rm_df$Generation <- rm_df$Generation - 5000
+rm_df$PopulationID <- rep(1:2, each = 101)
 
 # load genetic_load regime
 
-genload_df <- read.table("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/future_repo/1_Outputs/3_Genetic-Load/genetic_load_5000burn_100gen_1_popstats.txt", header = T)
+genload_df <- read.table("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/3_Genetic-Load/genetic_load_5000burn_100gen_1_popstats.txt", header = T)
 
 
 for(i in 2:2){
-  df <- read.table(paste0("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/future_repo/1_Outputs/3_Genetic-Load/genetic_load_5000burn_100gen_", i, "_popstats.txt"), header = T)
+  df <- read.table(paste0("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/3_Genetic-Load/genetic_load_5000burn_100gen_", i, "_popstats.txt"), header = T)
   genload_df <- rbind(genload_df, df)
 }
 genload_df$Generation <- genload_df$Generation - 5000
-genload_df$PopulationID <- rep(1:2, each = 30)
+genload_df$PopulationID <- rep(1:2, each = 101)
 #load relatedness model
 
-related_df <- read.table("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/relatedness/relatedness_5000burn_100gen_1_popstats.txt", header = T)
+related_df <- read.table("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/2_Relatedness/relatedness_5000burn_100gen_1_popstats.txt", header = T)
 
 
 for(i in 2:2){
-  df <- read.table(paste0("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/relatedness/relatedness_5000burn_100gen_", i, "_popstats.txt"), header = T)
+  df <- read.table(paste0("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/2_Relatedness/relatedness_5000burn_100gen_", i, "_popstats.txt"), header = T)
   related_df <- rbind(related_df, df)
 }
 
-related_df$Generation <- related_df$Generation -5000
-
+#related_df$Generation <- related_df$Generation -5000
+related_df$PopulationID <- rep(1:2, each = 101)
 #load genetic + relatedness
 
-gen_and_rel_df <- read.table("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/genetic_load/geneticrelated_load_5000burn_100gen_1_popstats.txt", header = T)
+mixed_df <- read.table("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/4_Mixed/mixed_5000burn_100gen_1_popstats.txt", header = T)
 
 
 for(i in 2:2){
-  df <- read.table(paste0("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/relatedness/geneticrelated_5000burn_100gen_", i, "_popstats.txt"), header = T)
-  gen_and_rel_df <- rbind(gen_and_rel_df, df)
+  df <- read.table(paste0("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/4_Mixed/mixed_5000burn_100gen_", i, "_popstats.txt"), header = T)
+  mixed_df <- rbind(mixed_df, df)
 }
-
-gen_and_rel_df$Generation <- gen_and_rel_df$Generation -5000
+mixed_df$PopulationID <- rep(1:2, each = 101)
+mixed_df$Generation <- mixed_df$Generation -5000
 ```
 
 Now we do the mean of every replicat at each generation for genload
@@ -72,7 +72,7 @@ genetic_load <- c()
 realized_load <- c()
 fitness <- c()
 gen <- c()
-for(i in 1:30){
+for(i in 1:101){
   generation <- genload_df[genload_df$Generation == i,]
   heterozygo <- c(heterozygo, mean(generation$UniqueMutations))
   genetic_load <- c(genetic_load, mean(generation$totalLoad))
@@ -93,13 +93,13 @@ fitness <- c()
 gen <- c()
 for(i in 1:101){
   generation <- rm_df[rm_df$Generation == i,]
-  heterozygo <- c(heterozygo, mean(generation$uniquemutation))
+  heterozygo <- c(heterozygo, mean(generation$UniqueMutations))
   genetic_load <- c(genetic_load, mean(generation$totalLoad))
   realized_load <- c(realized_load, mean(generation$RelzLoad))
-  fitness <- c(fitness, generation$fitness)
+  fitness <- c(fitness, mean(generation$MeanFitness))
   gen <- c(gen, i)
 }
-mean_rm_df <- cbind(gen, heterozygo, genetic_load, realized_load, fitness)
+mean_rm_df <- as.data.frame(cbind(gen, heterozygo, genetic_load, realized_load, fitness))
 colnames(mean_rm_df) <- c("generation", "heterozygosity", "genetic_load", "realized_load", "fitness")
 ```
 
@@ -113,13 +113,13 @@ fitness <- c()
 gen <- c()
 for(i in 1:101){
   generation <- related_df[related_df$Generation == i,]
-  heterozygo <- c(heterozygo, mean(generation$uniquemutation))
+  heterozygo <- c(heterozygo, mean(generation$UniqueMutations))
   genetic_load <- c(genetic_load, mean(generation$totalLoad))
   realized_load <- c(realized_load, mean(generation$RelzLoad))
-  fitness <- c(fitness, generation$fitness)
+  fitness <- c(fitness, mean(generation$MeanFitness))
   gen <- c(gen, i)
 }
-mean_related_df <- cbind(gen, heterozygo, genetic_load, realized_load, fitness)
+mean_related_df <- as.data.frame(cbind(gen, heterozygo, genetic_load, realized_load, fitness))
 colnames(mean_related_df) <- c("generation", "heterozygosity", "genetic_load", "realized_load", "fitness")
 ```
 
@@ -136,7 +136,7 @@ for(i in 1:101){
   heterozygo <- c(heterozygo, mean(generation$uniquemutation))
   genetic_load <- c(genetic_load, mean(generation$totalLoad))
   realized_load <- c(realized_load, mean(generation$RelzLoad))
-  fitness <- c(fitness, generation$fitness)
+  fitness <- c(fitness, mean(generation$fitness))
   gen <- c(gen, i)
 }
 mean_gen_and_rel_df <- cbind(gen, heterozygo, genetic_load, realized_load, fitness)
@@ -144,7 +144,8 @@ colnames(mean_gen_and_rel_df) <- c("generation", "heterozygosity", "genetic_load
 ```
 
 ```{r}
-realized_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = realized_load), color = "orange", size = 1 ) +   theme(
+realized_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = realized_load), color = "orange", size = 1 ) +  geom_line(data = mean_rm_df, aes(x = generation, y = realized_load), color = "lightgray", size = 1 ) + 
+  theme(
     plot.background = element_rect(fill = "black"),
     panel.background = element_rect(fill = "black"),
     panel.grid.major = element_line(color = "gray30"),
@@ -156,7 +157,7 @@ realized_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generatio
     legend.text = element_text(color = "white")
   )
 
-load_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = genetic_load), color = "orange", size = 1 ) +   theme(
+load_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = genetic_load), color = "orange", size = 1 ) +  geom_line(data = mean_rm_df, aes(x = generation, y = genetic_load), color = "lightgray", size = 1 ) + theme(
     plot.background = element_rect(fill = "black"),
     panel.background = element_rect(fill = "black"),
     panel.grid.major = element_line(color = "gray30"),
@@ -167,7 +168,7 @@ load_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y
     legend.background = element_rect(fill = "black"),
     legend.text = element_text(color = "white")
   )
-fitness_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = fitness), color = "orange", size = 1 ) +   theme(
+fitness_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = fitness), color = "orange", size = 1 ) + geom_line(data = mean_rm_df, aes(x = generation, y = fitness), color = "lightgray", size = 1 ) +  theme(
     plot.background = element_rect(fill = "black"),
     panel.background = element_rect(fill = "black"),
     panel.grid.major = element_line(color = "gray30"),
@@ -179,7 +180,7 @@ fitness_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation
     legend.text = element_text(color = "white")
   )
 
-hetero_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = heterozygosity), color = "orange", size = 1 ) +   theme(
+hetero_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = heterozygosity), color = "orange", size = 1 ) + geom_line(data = mean_rm_df, aes(x = generation, y = heterozygosity), color = "lightgray", size = 1 ) +  theme(
     plot.background = element_rect(fill = "black"),
     panel.background = element_rect(fill = "black"),
     panel.grid.major = element_line(color = "gray30"),
