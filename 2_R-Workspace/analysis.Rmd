@@ -584,6 +584,9 @@ end_mixed$regime <- "mixed"
 model_df <- as.data.frame(rbind(end_load, end_mixed, end_random, end_random_related, end_related))
 model_df$regime <- factor(model_df$regime)
 ```
+
+analysis on realized load
+
 ```{r}
 library("reshape2")
 mod <- aov(model_df$RelzLoad ~ model_df$regime)
@@ -597,9 +600,9 @@ tukey_df$Comparison <- rownames(tukey_df)
 tukey_df$Significance <- ifelse(tukey_df$`p adj` <= 0.05, "*", "")  # Add "*" for p <= 0.05
 
 # Plot with stars for significant points
-ggplot(tukey_df, aes(x = reorder(Comparison, diff), y = diff)) +
-  geom_point(size = 3) +
-  geom_errorbar(aes(ymin = lwr, ymax = upr), width = 0.2) +
+post_hoc_graph <- ggplot(tukey_df, aes(x = reorder(Comparison, diff), y = diff)) +
+  geom_point(size = 3, color = "white") +
+  geom_errorbar(aes(ymin = lwr, ymax = upr), width = 0.3, color = "white") +
   geom_text(aes(label = Significance), nudge_x = 0.3, color = "red", size = 5) + # Add stars
   labs(
     title = "Tukey Post-Hoc Test Results",
@@ -607,8 +610,30 @@ ggplot(tukey_df, aes(x = reorder(Comparison, diff), y = diff)) +
     y = "Mean Difference"
   ) +
   coord_flip() + # Rotate for better readability
-  theme_minimal()
+  theme(
+    plot.background = element_rect(fill = "#212121"),
+    panel.background = element_blank(),
+    panel.grid.major = element_line(color = "gray50"),
+    panel.grid.minor = element_line(color = "gray50"),
+    axis.text = element_text(color = "white"),
+    axis.title = element_text(color = "white"),
+    plot.title = element_text(color = "white", hjust = 0.5),
+    legend.background = element_rect(fill = "#212121"),
+    legend.text = element_text(color = "white", size = 30),
+    axis.title.x = element_text(size = 20),  # X-axis title size
+    axis.title.y = element_text(size = 20),
+    axis.text.x = element_text(size = 15),  # Increase x-axis label size
+    axis.text.y = element_text(size = 15)
+  )
 
+print(post_hoc_graph)
+ggsave(
+  filename = paste0(path, "2_R-Workspace/post_hoc_graph.png"),  # Full file path
+  plot = post_hoc_graph,            # Plot object to save
+  width = 10,              # Width in inches
+  height = 7,             # Height in inches
+  dpi = 600               # Resolution
+)
 
 tukey_df$Group1 <- sapply(strsplit(rownames(tukey_df), "-"), `[`, 1)  # Split comparisons
 tukey_df$Group2 <- sapply(strsplit(rownames(tukey_df), "-"), `[`, 2)  # Split comparisons
@@ -624,7 +649,7 @@ heatmap_melt <- reshape2::melt(heatmap_data, id.vars = "Group1")
 heatmap_melt$Significance <- ifelse(heatmap_melt$value <= 0.05, "Significant", "Not Significant")
 
 # Plot the heatmap
-ggplot(heatmap_melt, aes(x = Group1, y = variable, fill = Significance)) +
+heatmap_pvalue <- ggplot(heatmap_melt, aes(x = Group1, y = variable, fill = Significance)) +
   geom_tile(color = "white") +
   scale_fill_manual(
     values = c("Significant" = "red", "Not Significant" = "grey"),
@@ -635,9 +660,135 @@ ggplot(heatmap_melt, aes(x = Group1, y = variable, fill = Significance)) +
     x = "Group 1",
     y = "Group 2"
   ) +
-  theme_minimal() +
+    theme(
+    plot.background = element_rect(fill = "#212121"),
+    panel.background = element_blank(),
+    panel.grid.major = element_line(color = "gray50"),
+    panel.grid.minor = element_line(color = "gray50"),
+    legend.title = element_text(color = "white"),
+    axis.text = element_text(color = "white"),
+    axis.title = element_text(color = "white"),
+    plot.title = element_text(color = "white", hjust = 0.5),
+    legend.background = element_rect(fill = "#212121"),
+    legend.text = element_text(color = "white", size = 10),
+    axis.title.x = element_blank(),  # X-axis title size
+    axis.title.y = element_blank(),
+    axis.text.x = element_text(size = 20),  # Increase x-axis label size
+    axis.text.y = element_text(size = 20)
+  ) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave(
+  filename = paste0(path, "2_R-Workspace/heatmap_pvalue.png"),  # Full file path
+  plot = heatmap_pvalue,            # Plot object to save
+  width = 10,              # Width in inches
+  height = 7,             # Height in inches
+  dpi = 600               # Resolution
+)
 ```
+
+
+Analysis on Heterozygosity 
+
+```{r}
+mod <- aov(model_df$Heterozygosity ~ model_df$regime)
+anova(mod)
+posthoc <- TukeyHSD(mod)
+print(posthoc)
+
+tukey_df <- as.data.frame(posthoc$`model_df$regime`)
+tukey_df$Comparison <- rownames(tukey_df)
+
+tukey_df$Significance <- ifelse(tukey_df$`p adj` <= 0.05, "*", "")  # Add "*" for p <= 0.05
+
+# Plot with stars for significant points
+post_hoc_graph <- ggplot(tukey_df, aes(x = reorder(Comparison, diff), y = diff)) +
+  geom_point(size = 3, color = "white") +
+  geom_errorbar(aes(ymin = lwr, ymax = upr), width = 0.3, color = "white") +
+  geom_text(aes(label = Significance), nudge_x = 0.3, color = "red", size = 5) + # Add stars
+  labs(
+    title = "Tukey Post-Hoc Test Results",
+    x = "Pairwise Comparisons",
+    y = "Mean Difference"
+  ) +
+  coord_flip() + # Rotate for better readability
+  theme(
+    plot.background = element_rect(fill = "#212121"),
+    panel.background = element_blank(),
+    panel.grid.major = element_line(color = "gray50"),
+    panel.grid.minor = element_line(color = "gray50"),
+    axis.text = element_text(color = "white"),
+    axis.title = element_text(color = "white"),
+    plot.title = element_text(color = "white", hjust = 0.5),
+    legend.background = element_rect(fill = "#212121"),
+    legend.text = element_text(color = "white", size = 30),
+    axis.title.x = element_text(size = 20),  # X-axis title size
+    axis.title.y = element_text(size = 20),
+    axis.text.x = element_text(size = 15),  # Increase x-axis label size
+    axis.text.y = element_text(size = 15)
+  )
+
+print(post_hoc_graph)
+ggsave(
+  filename = paste0(path, "2_R-Workspace/post_hoc_graph_hetero.png"),  # Full file path
+  plot = post_hoc_graph,            # Plot object to save
+  width = 10,              # Width in inches
+  height = 7,             # Height in inches
+  dpi = 600               # Resolution
+)
+
+tukey_df$Group1 <- sapply(strsplit(rownames(tukey_df), "-"), `[`, 1)  # Split comparisons
+tukey_df$Group2 <- sapply(strsplit(rownames(tukey_df), "-"), `[`, 2)  # Split comparisons
+
+# Create a matrix-like data frame for heatmap
+heatmap_data <- reshape2::dcast(tukey_df, Group1 ~ Group2, value.var = "p adj")
+heatmap_data[is.na(heatmap_data)] <- 1  # Replace NAs with 1 (non-significant p-values)
+
+# Melt the data frame for ggplot
+heatmap_melt <- reshape2::melt(heatmap_data, id.vars = "Group1")
+
+# Add a new column for significance (red for p <= 0.05, grey otherwise)
+heatmap_melt$Significance <- ifelse(heatmap_melt$value <= 0.05, "Significant", "Not Significant")
+
+# Plot the heatmap
+heatmap_pvalue <- ggplot(heatmap_melt, aes(x = Group1, y = variable, fill = Significance)) +
+  geom_tile(color = "white") +
+  scale_fill_manual(
+    values = c("Significant" = "red", "Not Significant" = "grey"),
+    name = "Significance"
+  ) +
+  labs(
+    title = "Heatmap of Tukey Test Results",
+    x = "Group 1",
+    y = "Group 2"
+  ) +
+    theme(
+    plot.background = element_rect(fill = "#212121"),
+    panel.background = element_blank(),
+    panel.grid.major = element_line(color = "gray50"),
+    panel.grid.minor = element_line(color = "gray50"),
+    legend.title = element_text(color = "white"),
+    axis.text = element_text(color = "white"),
+    axis.title = element_text(color = "white"),
+    plot.title = element_text(color = "white", hjust = 0.5),
+    legend.background = element_rect(fill = "#212121"),
+    legend.text = element_text(color = "white", size = 10),
+    axis.title.x = element_blank(),  # X-axis title size
+    axis.title.y = element_blank(),
+    axis.text.x = element_text(size = 20),  # Increase x-axis label size
+    axis.text.y = element_text(size = 20)
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave(
+  filename = paste0(path, "2_R-Workspace/heatmap_pvalue_hetero.png"),  # Full file path
+  plot = heatmap_pvalue,            # Plot object to save
+  width = 10,              # Width in inches
+  height = 7,             # Height in inches
+  dpi = 600               # Resolution
+)
+```
+
 
 
 
