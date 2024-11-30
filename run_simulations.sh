@@ -1,8 +1,8 @@
 #!/run/current-system/sw/bin/bash 
 
 # Define the mating strategies
-# mating_strategies=("random" "random-relatedness" "relatedness" "genetic_load" "mixed")
-mating_strategies=("relatedness")
+mating_strategies=("random" "random-relatedness" "relatedness" "genetic_load" "mixed" "relatedness_paper" "mixed_paper")
+
 
 # Run the burn-in phase
 echo "Starting burn-in phase..."
