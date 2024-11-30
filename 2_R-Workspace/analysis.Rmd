@@ -575,7 +575,7 @@ batch_ttest_mixed <- t.test(end_mixed$RelzLoad) ; batch_ttest_mixed
 ## Anova between all the regimes 100 batches
 
 ```{r}
-library("apaTables")
+
 end_load$regime <- "load"
 end_random_related$regime <- "random_related"
 end_random$regime <- "random"
@@ -585,17 +585,22 @@ model_df <- as.data.frame(rbind(end_load, end_mixed, end_random, end_random_rela
 model_df$regime <- factor(model_df$regime)
 ```
 ```{r}
-
+library("reshape2")
 mod <- aov(model_df$RelzLoad ~ model_df$regime)
 anova(mod)
 posthoc <- TukeyHSD(mod)
+print(posthoc)
 
 tukey_df <- as.data.frame(posthoc$`model_df$regime`)
 tukey_df$Comparison <- rownames(tukey_df)
 
+tukey_df$Significance <- ifelse(tukey_df$`p adj` <= 0.05, "*", "")  # Add "*" for p <= 0.05
+
+# Plot with stars for significant points
 ggplot(tukey_df, aes(x = reorder(Comparison, diff), y = diff)) +
   geom_point(size = 3) +
   geom_errorbar(aes(ymin = lwr, ymax = upr), width = 0.2) +
+  geom_text(aes(label = Significance), nudge_x = 0.3, color = "red", size = 5) + # Add stars
   labs(
     title = "Tukey Post-Hoc Test Results",
     x = "Pairwise Comparisons",
@@ -603,6 +608,35 @@ ggplot(tukey_df, aes(x = reorder(Comparison, diff), y = diff)) +
   ) +
   coord_flip() + # Rotate for better readability
   theme_minimal()
+
+
+tukey_df$Group1 <- sapply(strsplit(rownames(tukey_df), "-"), `[`, 1)  # Split comparisons
+tukey_df$Group2 <- sapply(strsplit(rownames(tukey_df), "-"), `[`, 2)  # Split comparisons
+
+# Create a matrix-like data frame for heatmap
+heatmap_data <- reshape2::dcast(tukey_df, Group1 ~ Group2, value.var = "p adj")
+heatmap_data[is.na(heatmap_data)] <- 1  # Replace NAs with 1 (non-significant p-values)
+
+# Melt the data frame for ggplot
+heatmap_melt <- reshape2::melt(heatmap_data, id.vars = "Group1")
+
+# Add a new column for significance (red for p <= 0.05, grey otherwise)
+heatmap_melt$Significance <- ifelse(heatmap_melt$value <= 0.05, "Significant", "Not Significant")
+
+# Plot the heatmap
+ggplot(heatmap_melt, aes(x = Group1, y = variable, fill = Significance)) +
+  geom_tile(color = "white") +
+  scale_fill_manual(
+    values = c("Significant" = "red", "Not Significant" = "grey"),
+    name = "Significance"
+  ) +
+  labs(
+    title = "Heatmap of Tukey Test Results",
+    x = "Group 1",
+    y = "Group 2"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 
