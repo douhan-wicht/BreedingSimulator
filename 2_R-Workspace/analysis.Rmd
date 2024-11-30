@@ -14,14 +14,18 @@ library(patchwork)
 ## random_mating
 
 ```{r}
+# enter your directory 
+
+path <- "C:/Users/besan/Desktop/gen p/BreedingSimulator/"
+
 
 # Load random mating
 
-rm_df <- read.table("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/1_Random-Relatedness/random-relatedness_5000burn_100gen_1_popstats.txt", header = T)
+rm_df <- read.table(paste0(path,"1_Outputs/1_Random-Relatedness/random-relatedness_5000burn_100gen_1_popstats.txt"), header = T)
 
 
 for(i in 2:2){
-  df <- read.table(paste0("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/1_Random-Relatedness/random-relatedness_5000burn_100gen_", i, "_popstats.txt"), header = T)
+  df <- read.table(paste0(path,"1_Outputs/1_Random-Relatedness/random-relatedness_5000burn_100gen_", i, "_popstats.txt"), header = T)
   rm_df <- rbind(rm_df, df)
 }
 
@@ -30,34 +34,34 @@ rm_df$PopulationID <- rep(1:2, each = 101)
 
 # load genetic_load regime
 
-genload_df <- read.table("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/3_Genetic-Load/genetic_load_5000burn_100gen_1_popstats.txt", header = T)
+genload_df <- read.table(paste0(path, "1_Outputs/3_Genetic-Load/genetic_load_5000burn_100gen_1_popstats.txt"), header = T)
 
 
 for(i in 2:2){
-  df <- read.table(paste0("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/3_Genetic-Load/genetic_load_5000burn_100gen_", i, "_popstats.txt"), header = T)
+  df <- read.table(paste0(path, "1_Outputs/3_Genetic-Load/genetic_load_5000burn_100gen_", i, "_popstats.txt"), header = T)
   genload_df <- rbind(genload_df, df)
 }
 genload_df$Generation <- genload_df$Generation - 5000
 genload_df$PopulationID <- rep(1:2, each = 101)
 #load relatedness model
 
-related_df <- read.table("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/2_Relatedness/relatedness_10000burn_100gen_1_popstats.txt", header = T)
+related_df <- read.table(paste0(path,"1_Outputs/2_Relatedness/relatedness_10000burn_100gen_1_popstats.txt"), header = T)
 
 
 for(i in 2:40){
-  df <- read.table(paste0("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/2_Relatedness/relatedness_10000burn_100gen_", i, "_popstats.txt"), header = T)
+  df <- read.table(paste0(path, "1_Outputs/2_Relatedness/relatedness_10000burn_100gen_", i, "_popstats.txt"), header = T)
   related_df <- rbind(related_df, df)
 }
 
 related_df$Generation <- related_df$Generation -10000
-related_df$PopulationID <- rep(1:41, each = 101)
+related_df$PopulationID <- rep(1:40, each = 101)
 #load genetic + relatedness
 
-mixed_df <- read.table("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/4_Mixed/mixed_5000burn_100gen_1_popstats.txt", header = T)
+mixed_df <- read.table(paste0(path, "1_Outputs/4_Mixed/mixed_5000burn_100gen_1_popstats.txt"), header = T)
 
 
 for(i in 2:2){
-  df <- read.table(paste0("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/4_Mixed/mixed_5000burn_100gen_", i, "_popstats.txt"), header = T)
+  df <- read.table(paste0(path, "1_Outputs/4_Mixed/mixed_5000burn_100gen_", i, "_popstats.txt"), header = T)
   mixed_df <- rbind(mixed_df, df)
 }
 mixed_df$PopulationID <- rep(1:2, each = 101)
@@ -65,16 +69,18 @@ mixed_df$Generation <- mixed_df$Generation -5000
 
 # Load full random mating
 
-random_df <- read.table("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/0_Random/random_5000burn_100gen_1_popstats.txt", header = T)
+random_df <- read.table(paste0(path, "1_Outputs/0_Random/random_5000burn_100gen_1_popstats.txt"), header = T)
 
 
 for(i in 2:2){
-  df <- read.table(paste0("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/0_Random/random_5000burn_100gen_", i, "_popstats.txt"), header = T)
+  df <- read.table(paste0(path, "1_Outputs/0_Random/random_5000burn_100gen_", i, "_popstats.txt"), header = T)
   random_df <- rbind(random_df, df)
 }
 
 random_df$Generation <- random_df$Generation - 5000
 random_df$PopulationID <- rep(1:2, each = 101)
+
+
 ```
 
 Now we do the mean of every replicat at each generation for genload
@@ -145,15 +151,15 @@ realized_load <- c()
 fitness <- c()
 gen <- c()
 for(i in 1:101){
-  generation <- gen_and_rel_df[gen_and_rel_df$Generation == i,]
+  generation <- mixed_df[mixed_df$Generation == i,]
   heterozygo <- c(heterozygo, mean(generation$uniquemutation))
   genetic_load <- c(genetic_load, mean(generation$totalLoad))
   realized_load <- c(realized_load, mean(generation$RelzLoad))
   fitness <- c(fitness, mean(generation$fitness))
   gen <- c(gen, i)
 }
-mean_gen_and_rel_df <- cbind(gen, heterozygo, genetic_load, realized_load, fitness)
-colnames(mean_gen_and_rel_df) <- c("generation", "heterozygosity", "genetic_load", "realized_load", "fitness")
+mean_mixed_df <- cbind(gen, heterozygo, genetic_load, realized_load, fitness)
+colnames(mean_mixed_df) <- c("generation", "heterozygosity", "genetic_load", "realized_load", "fitness")
 ```
 
 now for full random
@@ -180,56 +186,102 @@ colnames(mean_random_df) <- c("generation", "heterozygosity", "genetic_load", "r
 ```{r}
 realized_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = realized_load), color = "indianred1", size = 1 ) +  geom_line(data = mean_rm_df, aes(x = generation, y = realized_load), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = realized_load), color = "yellow1", size = 1 )+ geom_line(data = mean_related_df, aes(x = generation, y = realized_load), color = "skyblue1", size = 1 ) + labs(x = "Generations", y = "Realized load") + 
   theme(
-    plot.background = element_rect(fill = "black"),
-    panel.background = element_rect(fill = "black"),
-    panel.grid.major = element_line(color = "gray30"),
-    panel.grid.minor = element_line(color = "gray20"),
+    plot.background = element_rect(fill = "#212121"),
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
     axis.text = element_text(color = "white"),
     axis.title = element_text(color = "white"),
     plot.title = element_text(color = "white", hjust = 0.5),
-    legend.background = element_rect(fill = "black"),
-    legend.text = element_text(color = "white") 
+    legend.background = element_rect(fill = "#212121"),
+    legend.text = element_text(color = "white"),
+    axis.title.x = element_text(size = 30),  # X-axis title size
+    axis.title.y = element_text(size = 30),
+    axis.text.x = element_text(size = 20),  # Increase x-axis label size
+    axis.text.y = element_text(size = 20)# Increase axis title siz
   )
 
 load_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = genetic_load), color = "indianred1", size = 1 ) +  geom_line(data = mean_rm_df, aes(x = generation, y = genetic_load), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = genetic_load), color = "yellow1", size = 1 )+ geom_line(data = mean_related_df, aes(x = generation, y = genetic_load), color = "skyblue1", size = 1 ) + labs(x = "Generations", y = "Genetic load") + theme(
-    plot.background = element_rect(fill = "black"),
-    panel.background = element_rect(fill = "black"),
-    panel.grid.major = element_line(color = "gray30"),
-    panel.grid.minor = element_line(color = "gray20"),
+    plot.background = element_rect(fill = "#212121"),
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
     axis.text = element_text(color = "white"),
     axis.title = element_text(color = "white"),
     plot.title = element_text(color = "white", hjust = 0.5),
-    legend.background = element_rect(fill = "black"),
-    legend.text = element_text(color = "white") 
+    legend.background = element_rect(fill = "#212121"),
+    legend.text = element_text(color = "white"),
+    axis.title.x = element_text(size = 30),  # X-axis title size
+    axis.title.y = element_text(size = 30),
+    axis.text.x = element_text(size = 20),  # Increase x-axis label size
+    axis.text.y = element_text(size = 20)# Increase axis title siz
+  
   )
 fitness_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = fitness), color = "indianred1", size = 1 ) + geom_line(data = mean_rm_df, aes(x = generation, y = fitness), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = fitness), color = "yellow1", size = 1 )+ geom_line(data = mean_related_df, aes(x = generation, y = fitness), color = "skyblue1", size = 1 ) + labs(x = "Generations", y = "Fitness") + theme(
-    plot.background = element_rect(fill = "black"),
-    panel.background = element_rect(fill = "black"),
-    panel.grid.major = element_line(color = "gray30"),
-    panel.grid.minor = element_line(color = "gray20"),
+    plot.background = element_rect(fill = "#212121"),
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
     axis.text = element_text(color = "white"),
     axis.title = element_text(color = "white"),
     plot.title = element_text(color = "white", hjust = 0.5),
-    legend.background = element_rect(fill = "black"),
-    legend.text = element_text(color = "white") 
-      
+    legend.background = element_rect(fill = "#212121"),
+    legend.text = element_text(color = "white"),
+    axis.title.x = element_text(size = 30),  # X-axis title size
+    axis.title.y = element_text(size = 30),
+    axis.text.x = element_text(size = 20),  # Increase x-axis label size
+    axis.text.y = element_text(size = 20)
+        
   )
 
 hetero_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = heterozygosity), color = "indianred1", size = 1 ) + geom_line(data = mean_rm_df, aes(x = generation, y = heterozygosity), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = heterozygosity), color = "yellow1", size = 1 )+ geom_line(data = mean_related_df, aes(x = generation, y = heterozygosity), color = "skyblue1", size = 1 ) + labs(x = "Generations", y = "Number of unique mutation") + theme(
-    plot.background = element_rect(fill = "black"),
-    panel.background = element_rect(fill = "black"),
-    panel.grid.major = element_line(color = "gray30"),
-    panel.grid.minor = element_line(color = "gray20"),
+    plot.background = element_rect(fill = "#212121"),
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
     axis.text = element_text(color = "white"),
     axis.title = element_text(color = "white"),
     plot.title = element_text(color = "white", hjust = 0.5),
-    legend.background = element_rect(fill = "black"),
-    legend.text = element_text(color = "white") 
+    legend.background = element_rect(fill = "#212121"),
+    legend.text = element_text(color = "white"),
+    axis.title.x = element_text(size = 30),  # X-axis title size
+    axis.title.y = element_text(size = 30),
+    axis.text.x = element_text(size = 20),  # Increase x-axis label size
+    axis.text.y = element_text(size = 20)
   )
-
-combined_plot <- load_graph + realized_graph + fitness_graph + hetero_graph + plot_layout(ncol = 4) + plot_annotation(theme = theme(plot.background = element_rect(fill = "black")))
 ggsave(
-  filename = "C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/2_R-Workspace/combined_plot.png",  # Full file path
+  filename = paste0(path, "2_R-Workspace/Realizedload_plot.png"),  # Full file path
+  plot = realized_graph,            # Plot object to save
+  width = 7,              # Width in inches
+  height = 10,             # Height in inches
+  dpi = 600               # Resolution
+)
+ggsave(
+  filename = paste0(path, "2_R-Workspace/totalload_plot.png"),  # Full file path
+  plot = load_graph,            # Plot object to save
+  width = 7,              # Width in inches
+  height = 10,             # Height in inches
+  dpi = 600               # Resolution
+)
+ggsave(
+  filename = paste0(path, "2_R-Workspace/fitness_plot.png"),  # Full file path
+  plot = fitness_graph,            # Plot object to save
+  width = 7,              # Width in inches
+  height = 10,             # Height in inches
+  dpi = 600               # Resolution
+)
+ggsave(
+  filename = paste0(path, "2_R-Workspace/hetero_plot.png"),  # Full file path
+  plot = hetero_graph,            # Plot object to save
+  width = 7,              # Width in inches
+  height = 10,             # Height in inches
+  dpi = 600               # Resolution
+)
+
+
+combined_plot <- load_graph + realized_graph + fitness_graph + hetero_graph + plot_layout(ncol = 4) + plot_annotation(theme = theme(plot.background = element_rect(fill = "#212121")))
+ggsave(
+  filename = paste0(path, "2_R-Workspace/combined_plot.png"),  # Full file path
   plot = combined_plot,            # Plot object to save
   width = 12,              # Width in inches
   height = 6,             # Height in inches
@@ -246,9 +298,9 @@ library(cowplot)
 
 # Create a dummy data frame for the legend
 legend_data <- data.frame(
-  x = c(1, 2, 3),  # Dummy x-values
-  y = c(1, 1, 1),  # Dummy y-values
-  group = factor(c("Minimize load", "Random mating related", "Random mating"))  # Factor for legend
+  x = c(1, 2, 3, 4),  # Dummy x-values
+  y = c(1, 1, 1, 1),  # Dummy y-values
+  group = factor(c("Minimize load", "Random mating related", "Random mating", "Relatedness"))  # Factor for legend
 )
 
 # Generate a plot with an enlarged legend
@@ -256,9 +308,10 @@ legend_plot <- ggplot(legend_data, aes(x = x, y = y, color = group)) +
   geom_point(size = 5) +  # Add dummy points for the legend
   scale_color_manual(
     values = c(
-      "Minimize load" = "indianred1",
+      "Minimize load" = "olivedrab3",
       "Random mating related" = "orchid1",
-      "Random mating" = "yellow1"
+      "Random mating" = "yellow1",
+      "Relatedness" = "skyblue1"
     )
   ) +
   labs(color = "Group Legend") +  # Set the legend title
@@ -268,9 +321,9 @@ legend_plot <- ggplot(legend_data, aes(x = x, y = y, color = group)) +
     legend.key.size = unit(2.5, "cm"),   # Increase size of legend keys
     legend.text = element_text(size = 16, color = "white"),  # Increase size of legend text
     legend.title = element_text(size = 18, color = "white"), # Increase size of legend title
-    legend.key = element_rect(fill = "black"),  # Black background for legend keys
-    panel.background = element_rect(fill = "black"),
-    plot.background = element_rect(fill = "black"),
+    legend.key = element_rect(fill = "#212121"),  # #212121 background for legend keys
+    panel.background = element_rect(fill = "#212121"),
+    plot.background = element_rect(fill = "#212121"),
     axis.title = element_blank(),
     axis.text = element_blank(),
     axis.ticks = element_blank(),
