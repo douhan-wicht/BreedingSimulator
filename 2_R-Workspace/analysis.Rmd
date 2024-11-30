@@ -21,66 +21,87 @@ path <- "C:/Users/besan/Desktop/gen p/BreedingSimulator/"
 
 # Load random mating
 
-rm_df <- read.table(paste0(path,"1_Outputs/1_Random-Relatedness/random-relatedness_5000burn_100gen_1_popstats.txt"), header = T)
+rm_df <- read.table(paste0(path,"1_Outputs/1_Random-Relatedness/random-relatedness_10000burn_100gen_1_popstats.txt"), header = T)
 
 
-for(i in 2:2){
-  df <- read.table(paste0(path,"1_Outputs/1_Random-Relatedness/random-relatedness_5000burn_100gen_", i, "_popstats.txt"), header = T)
+for(i in 2:100){
+  df <- read.table(paste0(path,"1_Outputs/1_Random-Relatedness/random-relatedness_10000burn_100gen_", i, "_popstats.txt"), header = T)
   rm_df <- rbind(rm_df, df)
 }
 
-rm_df$Generation <- rm_df$Generation - 5000
-rm_df$PopulationID <- rep(1:2, each = 101)
+rm_df$Generation <- rm_df$Generation - 10000
+rm_df$PopulationID <- rep(1:100, each = 101)
 
 # load genetic_load regime
 
-genload_df <- read.table(paste0(path, "1_Outputs/3_Genetic-Load/genetic_load_5000burn_100gen_1_popstats.txt"), header = T)
+genload_df <- read.table(paste0(path, "1_Outputs/3_Genetic-Load/genetic_load_10000burn_100gen_1_popstats.txt"), header = T)
 
 
-for(i in 2:2){
-  df <- read.table(paste0(path, "1_Outputs/3_Genetic-Load/genetic_load_5000burn_100gen_", i, "_popstats.txt"), header = T)
+for(i in 2:100){
+  df <- read.table(paste0(path, "1_Outputs/3_Genetic-Load/genetic_load_10000burn_100gen_", i, "_popstats.txt"), header = T)
   genload_df <- rbind(genload_df, df)
 }
-genload_df$Generation <- genload_df$Generation - 5000
-genload_df$PopulationID <- rep(1:2, each = 101)
+genload_df$Generation <- genload_df$Generation - 10000
+genload_df$PopulationID <- rep(1:100, each = 101)
 #load relatedness model
 
-related_df <- read.table(paste0(path,"1_Outputs/2_Relatedness/relatedness_10000burn_100gen_1_popstats.txt"), header = T)
+related_df <- read.table(paste0(path,"1_Outputs/5_Relatedness_paper/relatedness_paper_10000burn_100gen_1_popstats.txt"), header = T)
 
 
-for(i in 2:40){
-  df <- read.table(paste0(path, "1_Outputs/2_Relatedness/relatedness_10000burn_100gen_", i, "_popstats.txt"), header = T)
+for(i in 2:100){
+  df <- read.table(paste0(path, "1_Outputs/5_Relatedness_paper/relatedness_paper_10000burn_100gen_", i, "_popstats.txt"), header = T)
   related_df <- rbind(related_df, df)
 }
 
 related_df$Generation <- related_df$Generation -10000
-related_df$PopulationID <- rep(1:40, each = 101)
+related_df$PopulationID <- rep(1:100, each = 101)
 #load genetic + relatedness
 
-mixed_df <- read.table(paste0(path, "1_Outputs/4_Mixed/mixed_5000burn_100gen_1_popstats.txt"), header = T)
+mixed_df <- read.table(paste0(path, "1_Outputs/6_Mixed_paper/mixed_paper_10000burn_100gen_1_popstats.txt"), header = T)
 
 
-for(i in 2:2){
-  df <- read.table(paste0(path, "1_Outputs/4_Mixed/mixed_5000burn_100gen_", i, "_popstats.txt"), header = T)
+for(i in 2:100){
+  df <- read.table(paste0(path, "1_Outputs/6_Mixed_paper/mixed_paper_10000burn_100gen_", i, "_popstats.txt"), header = T)
   mixed_df <- rbind(mixed_df, df)
 }
-mixed_df$PopulationID <- rep(1:2, each = 101)
-mixed_df$Generation <- mixed_df$Generation -5000
+mixed_df$PopulationID <- rep(1:100, each = 101)
+mixed_df$Generation <- mixed_df$Generation -10000
 
 # Load full random mating
 
-random_df <- read.table(paste0(path, "1_Outputs/0_Random/random_5000burn_100gen_1_popstats.txt"), header = T)
+random_df <- read.table(paste0(path, "1_Outputs/0_Random/random_10000burn_100gen_1_popstats.txt"), header = T)
 
 
-for(i in 2:2){
-  df <- read.table(paste0(path, "1_Outputs/0_Random/random_5000burn_100gen_", i, "_popstats.txt"), header = T)
+for(i in 2:100){
+  df <- read.table(paste0(path, "1_Outputs/0_Random/random_10000burn_100gen_", i, "_popstats.txt"), header = T)
   random_df <- rbind(random_df, df)
 }
 
-random_df$Generation <- random_df$Generation - 5000
-random_df$PopulationID <- rep(1:2, each = 101)
+random_df$Generation <- random_df$Generation - 10000
+random_df$PopulationID <- rep(1:100, each = 101)
 
 
+old_related_df <- read.table(paste0(path,"1_Outputs/2_Relatedness/relatedness_10000burn_100gen_1_popstats.txt"), header = T)
+
+
+for(i in 2:100){
+  df <- read.table(paste0(path, "1_Outputs/2_Relatedness/relatedness_10000burn_100gen_", i, "_popstats.txt"), header = T)
+  old_related_df <- rbind(old_related_df, df)
+}
+
+old_related_df$Generation <- old_related_df$Generation -10000
+old_related_df$PopulationID <- rep(1:100, each = 101)
+
+old_mixed_df <- read.table(paste0(path,"1_Outputs/4_Mixed/mixed_10000burn_100gen_1_popstats.txt"), header = T)
+
+
+for(i in 2:100){
+  df <- read.table(paste0(path, "1_Outputs/4_Mixed/mixed_10000burn_100gen_", i, "_popstats.txt"), header = T)
+  old_mixed_df <- rbind(old_mixed_df, df)
+}
+
+old_mixed_df$Generation <- old_mixed_df$Generation -10000
+old_mixed_df$PopulationID <- rep(1:100, each = 101)
 ```
 
 Now we do the mean of every replicat at each generation for genload
@@ -93,7 +114,7 @@ fitness <- c()
 gen <- c()
 for(i in 1:101){
   generation <- genload_df[genload_df$Generation == i,]
-  heterozygo <- c(heterozygo, mean(generation$UniqueMutations))
+  heterozygo <- c(heterozygo, mean(generation$Heterozygosity))
   genetic_load <- c(genetic_load, mean(generation$totalLoad))
   realized_load <- c(realized_load, mean(generation$RelzLoad))
   fitness <- c(fitness, mean(generation$MeanFitness))
@@ -112,7 +133,7 @@ fitness <- c()
 gen <- c()
 for(i in 1:101){
   generation <- rm_df[rm_df$Generation == i,]
-  heterozygo <- c(heterozygo, mean(generation$UniqueMutations))
+  heterozygo <- c(heterozygo, mean(generation$Heterozygosity))
   genetic_load <- c(genetic_load, mean(generation$totalLoad))
   realized_load <- c(realized_load, mean(generation$RelzLoad))
   fitness <- c(fitness, mean(generation$MeanFitness))
@@ -132,7 +153,7 @@ fitness <- c()
 gen <- c()
 for(i in 1:101){
   generation <- related_df[related_df$Generation == i,]
-  heterozygo <- c(heterozygo, mean(generation$UniqueMutations))
+  heterozygo <- c(heterozygo, mean(generation$Heterozygosity))
   genetic_load <- c(genetic_load, mean(generation$totalLoad))
   realized_load <- c(realized_load, mean(generation$RelzLoad))
   fitness <- c(fitness, mean(generation$MeanFitness))
@@ -142,7 +163,28 @@ mean_related_df <- as.data.frame(cbind(gen, heterozygo, genetic_load, realized_l
 colnames(mean_related_df) <- c("generation", "heterozygosity", "genetic_load", "realized_load", "fitness")
 ```
 
-now for gen_and_related
+olde hetero
+
+```{r}
+heterozygo <- c()
+genetic_load <- c()
+realized_load <- c()
+fitness <- c()
+gen <- c()
+for(i in 1:101){
+  generation <- old_related_df[old_related_df$Generation == i,]
+  heterozygo <- c(heterozygo, mean(generation$Heterozygosity))
+  genetic_load <- c(genetic_load, mean(generation$totalLoad))
+  realized_load <- c(realized_load, mean(generation$RelzLoad))
+  fitness <- c(fitness, mean(generation$MeanFitness))
+  gen <- c(gen, i)
+}
+mean_old_related_df <- as.data.frame(cbind(gen, heterozygo, genetic_load, realized_load, fitness))
+colnames(mean_old_related_df) <- c("generation", "heterozygosity", "genetic_load", "realized_load", "fitness")
+```
+
+
+now for mixed
 
 ```{r}
 heterozygo <- c()
@@ -152,15 +194,35 @@ fitness <- c()
 gen <- c()
 for(i in 1:101){
   generation <- mixed_df[mixed_df$Generation == i,]
-  heterozygo <- c(heterozygo, mean(generation$uniquemutation))
+  heterozygo <- c(heterozygo, mean(generation$Heterozygosity))
   genetic_load <- c(genetic_load, mean(generation$totalLoad))
   realized_load <- c(realized_load, mean(generation$RelzLoad))
-  fitness <- c(fitness, mean(generation$fitness))
+  fitness <- c(fitness, mean(generation$MeanFitness))
   gen <- c(gen, i)
 }
-mean_mixed_df <- cbind(gen, heterozygo, genetic_load, realized_load, fitness)
+mean_mixed_df <- as.data.frame(cbind(gen, heterozygo, genetic_load, realized_load, fitness))
 colnames(mean_mixed_df) <- c("generation", "heterozygosity", "genetic_load", "realized_load", "fitness")
 ```
+
+old mixed
+```{r}
+heterozygo <- c()
+genetic_load <- c()
+realized_load <- c()
+fitness <- c()
+gen <- c()
+for(i in 1:101){
+  generation <- old_mixed_df[old_mixed_df$Generation == i,]
+  heterozygo <- c(heterozygo, mean(generation$Heterozygosity))
+  genetic_load <- c(genetic_load, mean(generation$totalLoad))
+  realized_load <- c(realized_load, mean(generation$RelzLoad))
+  fitness <- c(fitness, mean(generation$MeanFitness))
+  gen <- c(gen, i)
+}
+mean_old_mixed_df <- as.data.frame(cbind(gen, heterozygo, genetic_load, realized_load, fitness))
+colnames(mean_old_mixed_df) <- c("generation", "heterozygosity", "genetic_load", "realized_load", "fitness")
+```
+
 
 now for full random
 
@@ -172,7 +234,7 @@ fitness <- c()
 gen <- c()
 for(i in 1:101){
   generation <- random_df[random_df$Generation == i,]
-  heterozygo <- c(heterozygo, mean(generation$UniqueMutations))
+  heterozygo <- c(heterozygo, mean(generation$Heterozygosity))
   genetic_load <- c(genetic_load, mean(generation$totalLoad))
   realized_load <- c(realized_load, mean(generation$RelzLoad))
   fitness <- c(fitness, mean(generation$MeanFitness))
@@ -184,7 +246,7 @@ colnames(mean_random_df) <- c("generation", "heterozygosity", "genetic_load", "r
 
 
 ```{r}
-realized_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = realized_load), color = "indianred1", size = 1 ) +  geom_line(data = mean_rm_df, aes(x = generation, y = realized_load), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = realized_load), color = "yellow1", size = 1 )+ geom_line(data = mean_related_df, aes(x = generation, y = realized_load), color = "skyblue1", size = 1 ) + labs(x = "Generations", y = "Realized load") + 
+realized_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = realized_load), color = "indianred1", size = 1 ) +  geom_line(data = mean_rm_df, aes(x = generation, y = realized_load), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = realized_load), color = "yellow1", size = 1 )+ geom_line(data = mean_related_df, aes(x = generation, y = realized_load), color = "skyblue1", size = 1 )+ geom_line(data = mean_mixed_df, aes(x = generation, y = realized_load), color = "olivedrab3", size = 1 ) + labs(x = "Generations", y = "Realized load") + 
   theme(
     plot.background = element_rect(fill = "#212121"),
     panel.background = element_blank(),
@@ -201,7 +263,7 @@ realized_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generatio
     axis.text.y = element_text(size = 20)# Increase axis title siz
   )
 
-load_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = genetic_load), color = "indianred1", size = 1 ) +  geom_line(data = mean_rm_df, aes(x = generation, y = genetic_load), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = genetic_load), color = "yellow1", size = 1 )+ geom_line(data = mean_related_df, aes(x = generation, y = genetic_load), color = "skyblue1", size = 1 ) + labs(x = "Generations", y = "Genetic load") + theme(
+load_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = genetic_load), color = "indianred1", size = 1 ) +  geom_line(data = mean_rm_df, aes(x = generation, y = genetic_load), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = genetic_load), color = "yellow1", size = 1 )+ geom_line(data = mean_related_df, aes(x = generation, y = genetic_load), color = "skyblue1", size = 1 ) + geom_line(data = mean_mixed_df, aes(x = generation, y = genetic_load), color = "olivedrab3", size = 1 )+ labs(x = "Generations", y = "Genetic load") + theme(
     plot.background = element_rect(fill = "#212121"),
     panel.background = element_blank(),
     panel.grid.major = element_blank(),
@@ -217,7 +279,7 @@ load_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y
     axis.text.y = element_text(size = 20)# Increase axis title siz
   
   )
-fitness_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = fitness), color = "indianred1", size = 1 ) + geom_line(data = mean_rm_df, aes(x = generation, y = fitness), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = fitness), color = "yellow1", size = 1 )+ geom_line(data = mean_related_df, aes(x = generation, y = fitness), color = "skyblue1", size = 1 ) + labs(x = "Generations", y = "Fitness") + theme(
+fitness_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = fitness), color = "indianred1", size = 1 ) + geom_line(data = mean_rm_df, aes(x = generation, y = fitness), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = fitness), color = "yellow1", size = 1 )+ geom_line(data = mean_related_df, aes(x = generation, y = fitness), color = "skyblue1", size = 1 )+ geom_line(data = mean_mixed_df, aes(x = generation, y = fitness), color = "olivedrab3", size = 1 ) + labs(x = "Generations", y = "Fitness") + theme(
     plot.background = element_rect(fill = "#212121"),
     panel.background = element_blank(),
     panel.grid.major = element_blank(),
@@ -234,7 +296,7 @@ fitness_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation
         
   )
 
-hetero_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = heterozygosity), color = "indianred1", size = 1 ) + geom_line(data = mean_rm_df, aes(x = generation, y = heterozygosity), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = heterozygosity), color = "yellow1", size = 1 )+ geom_line(data = mean_related_df, aes(x = generation, y = heterozygosity), color = "skyblue1", size = 1 ) + labs(x = "Generations", y = "Number of unique mutation") + theme(
+hetero_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = heterozygosity), color = "indianred1", size = 1 ) + geom_line(data = mean_rm_df, aes(x = generation, y = heterozygosity), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = heterozygosity), color = "yellow1", size = 1 )+ geom_line(data = mean_related_df, aes(x = generation, y = heterozygosity), color = "skyblue1", size = 1 ) + geom_line(data = mean_mixed_df, aes(x = generation, y = heterozygosity), color = "olivedrab3", size = 1 )+ labs(x = "Generations", y = "heterozygosity") + theme(
     plot.background = element_rect(fill = "#212121"),
     panel.background = element_blank(),
     panel.grid.major = element_blank(),
@@ -333,6 +395,161 @@ legend_plot <- ggplot(legend_data, aes(x = x, y = y, color = group)) +
 legend_plot
 ```
 
+
+```{r}
+realized_graph_vs <- ggplot() + geom_line(data = mean_old_related_df, aes(x = generation, y = realized_load), color = "indianred1", size = 1 ) + geom_line(data = mean_related_df, aes(x = generation, y = realized_load), color = "skyblue1", size = 1 ) + labs(x = "Generations", y = "Realized load") + 
+  theme(
+    plot.background = element_rect(fill = "#212121"),
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.text = element_text(color = "white"),
+    axis.title = element_text(color = "white"),
+    plot.title = element_text(color = "white", hjust = 0.5),
+    legend.background = element_rect(fill = "#212121"),
+    legend.text = element_text(color = "white"),
+    axis.title.x = element_text(size = 25),  # X-axis title size
+    axis.title.y = element_text(size = 25),
+    axis.text.x = element_text(size = 10),  # Increase x-axis label size
+    axis.text.y = element_text(size = 10)# Increase axis title siz
+  )
+
+load_graph_vs <- ggplot() + geom_line(data = mean_old_related_df, aes(x = generation, y = genetic_load), color = "indianred1", size = 1 ) + geom_line(data = mean_related_df, aes(x = generation, y = genetic_load), color = "skyblue1", size = 1 ) + labs(x = "Generations", y = "total load") + theme(
+    plot.background = element_rect(fill = "#212121"),
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.text = element_text(color = "white"),
+    axis.title = element_text(color = "white"),
+    plot.title = element_text(color = "white", hjust = 0.5),
+    legend.background = element_rect(fill = "#212121"),
+    legend.text = element_text(color = "white"),
+    axis.title.x = element_text(size = 25),  # X-axis title size
+    axis.title.y = element_text(size = 25),
+    axis.text.x = element_text(size = 10),  # Increase x-axis label size
+    axis.text.y = element_text(size = 10)# Increase axis title siz
+  
+  )
+fitness_graph_vs <- ggplot() + geom_line(data = mean_old_related_df, aes(x = generation, y = fitness), color = "indianred1", size = 1 ) + geom_line(data = mean_related_df, aes(x = generation, y = fitness), color = "skyblue1", size = 1 ) + labs(x = "Generations", y = "fitness") + theme(
+    plot.background = element_rect(fill = "#212121"),
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.text = element_text(color = "white"),
+    axis.title = element_text(color = "white"),
+    plot.title = element_text(color = "white", hjust = 0.5),
+    legend.background = element_rect(fill = "#212121"),
+    legend.text = element_text(color = "white"),
+    axis.title.x = element_text(size = 25),  # X-axis title size
+    axis.title.y = element_text(size = 25),
+    axis.text.x = element_text(size = 10),  # Increase x-axis label size
+    axis.text.y = element_text(size = 10)
+        
+  )
+
+hetero_graph_vs <- ggplot() + geom_line(data = mean_old_related_df, aes(x = generation, y = heterozygosity), color = "indianred1", size = 1 ) + geom_line(data = mean_related_df, aes(x = generation, y = heterozygosity), color = "skyblue1", size = 1 ) + labs(x = "Generations", y = "heterozygosity")+ theme(
+    plot.background = element_rect(fill = "#212121"),
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.text = element_text(color = "white"),
+    axis.title = element_text(color = "white"),
+    plot.title = element_text(color = "white", hjust = 0.5),
+    legend.background = element_rect(fill = "#212121"),
+    legend.text = element_text(color = "white"),
+    axis.title.x = element_text(size = 25),  # X-axis title size
+    axis.title.y = element_text(size = 25),
+    axis.text.x = element_text(size = 10),  # Increase x-axis label size
+    axis.text.y = element_text(size = 10)
+  )
+boomer_vs_genz_plot <- load_graph_vs + realized_graph_vs + fitness_graph_vs + hetero_graph_vs + plot_layout(ncol = 4) + plot_annotation(theme = theme(plot.background = element_rect(fill = "#212121")))
+ggsave(
+  filename = paste0(path, "2_R-Workspace/rel_old_vs_paper_plot.png"),  # Full file path
+  plot = boomer_vs_genz_plot,            # Plot object to save
+  width = 12,              # Width in inches
+  height = 6,             # Height in inches
+  dpi = 600               # Resolution
+)
+```
+
+old vs paper mixed
+
+```{r}
+realized_graph_vs_mixed <- ggplot() + geom_line(data = mean_old_mixed_df, aes(x = generation, y = realized_load), color = "orchid", size = 1 ) + geom_line(data = mean_mixed_df, aes(x = generation, y = realized_load), color = "olivedrab3", size = 1 ) + labs(x = "Generations", y = "Realized load") + 
+  theme(
+    plot.background = element_rect(fill = "#212121"),
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.text = element_text(color = "white"),
+    axis.title = element_text(color = "white"),
+    plot.title = element_text(color = "white", hjust = 0.5),
+    legend.background = element_rect(fill = "#212121"),
+    legend.text = element_text(color = "white"),
+    axis.title.x = element_text(size = 25),  # X-axis title size
+    axis.title.y = element_text(size = 25),
+    axis.text.x = element_text(size = 10),  # Increase x-axis label size
+    axis.text.y = element_text(size = 10) 
+  )
+
+load_graph_vs_mixed <- ggplot() + geom_line(data = mean_old_mixed_df, aes(x = generation, y = genetic_load), color = "orchid", size = 1 ) + geom_line(data = mean_mixed_df, aes(x = generation, y = genetic_load), color = "olivedrab3", size = 1 ) + labs(x = "Generations", y = "total load") + theme(
+    plot.background = element_rect(fill = "#212121"),
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.text = element_text(color = "white"),
+    axis.title = element_text(color = "white"),
+    plot.title = element_text(color = "white", hjust = 0.5),
+    legend.background = element_rect(fill = "#212121"),
+    legend.text = element_text(color = "white"),
+    axis.title.x = element_text(size = 25),  # X-axis title size
+    axis.title.y = element_text(size = 25),
+    axis.text.x = element_text(size = 10),  # Increase x-axis label size
+    axis.text.y = element_text(size = 10)
+  )
+fitness_graph_vs_mixed <- ggplot() + geom_line(data = mean_old_mixed_df, aes(x = generation, y = fitness), color = "orchid", size = 1 ) + geom_line(data = mean_mixed_df, aes(x = generation, y = fitness), color = "olivedrab3", size = 1 ) + labs(x = "Generations", y = "fitness") + theme(
+    plot.background = element_rect(fill = "#212121"),
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.text = element_text(color = "white"),
+    axis.title = element_text(color = "white"),
+    plot.title = element_text(color = "white", hjust = 0.5),
+    legend.background = element_rect(fill = "#212121"),
+    legend.text = element_text(color = "white"),
+    axis.title.x = element_text(size = 25),  # X-axis title size
+    axis.title.y = element_text(size = 25),
+    axis.text.x = element_text(size = 10),  # Increase x-axis label size
+    axis.text.y = element_text(size = 10)
+  )
+
+hetero_graph_vs_mixed <- ggplot() + geom_line(data = mean_old_mixed_df, aes(x = generation, y = heterozygosity), color = "orchid", size = 1 ) + geom_line(data = mean_mixed_df, aes(x = generation, y = heterozygosity), color = "olivedrab3", size = 1 ) + labs(x = "Generations", y = "heterozygosity")+ theme(
+    plot.background = element_rect(fill = "#212121"),
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.text = element_text(color = "white"),
+    axis.title = element_text(color = "white"),
+    plot.title = element_text(color = "white", hjust = 0.5),
+    legend.background = element_rect(fill = "#212121"),
+    legend.text = element_text(color = "white"),
+    axis.title.x = element_text(size = 25),  # X-axis title size
+    axis.title.y = element_text(size = 25),
+    axis.text.x = element_text(size = 10),  # Increase x-axis label size
+    axis.text.y = element_text(size = 10)
+  )
+boomer_vs_genz_plot_mixed <- load_graph_vs_mixed + realized_graph_vs_mixed + fitness_graph_vs_mixed + hetero_graph_vs_mixed + plot_layout(ncol = 4) + plot_annotation(theme = theme(plot.background = element_rect(fill = "#212121")))
+ggsave(
+  filename = paste0(path, "2_R-Workspace/mixed_old_vs_paper_plot.png"),  # Full file path
+  plot = boomer_vs_genz_plot_mixed,            # Plot object to save
+  width = 12,              # Width in inches
+  height = 6,             # Height in inches
+  dpi = 600               # Resolution
+)
+```
+
+
+
 # Statistical analysis
 
 ## Student t test within each regimes between the hundreds replicates
@@ -351,24 +568,41 @@ end_mixed <- mixed_df[mixed_df$Generation == 101,]
 batch_ttest_load <- t.test(end_load$RelzLoad) ; batch_ttest_load
 batch_ttest_random <- t.test(end_random$RelzLoad) ; batch_ttest_random
 batch_ttest_random_related <- t.test(end_random_related$RelzLoad) ; batch_ttest_random_related
-batch_ttest_related <- t.test(end_related$RelzLoad)
-batch_ttest_mixed <- t.test(end_mixed$RelzLoad)
+batch_ttest_related <- t.test(end_related$RelzLoad) ; batch_ttest_related
+batch_ttest_mixed <- t.test(end_mixed$RelzLoad) ; batch_ttest_mixed
 ```
 
 ## Anova between all the regimes 100 batches
 
 ```{r}
+library("apaTables")
 end_load$regime <- "load"
 end_random_related$regime <- "random_related"
 end_random$regime <- "random"
 end_related$regime <- "related"
 end_mixed$regime <- "mixed"
-model_df <- rbind(end_load, end_mixed, end_random, end_random_related, end_related)
+model_df <- as.data.frame(rbind(end_load, end_mixed, end_random, end_random_related, end_related))
 model_df$regime <- factor(model_df$regime)
 ```
 ```{r}
+
 mod <- aov(model_df$RelzLoad ~ model_df$regime)
 anova(mod)
+posthoc <- TukeyHSD(mod)
+
+tukey_df <- as.data.frame(posthoc$`model_df$regime`)
+tukey_df$Comparison <- rownames(tukey_df)
+
+ggplot(tukey_df, aes(x = reorder(Comparison, diff), y = diff)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = lwr, ymax = upr), width = 0.2) +
+  labs(
+    title = "Tukey Post-Hoc Test Results",
+    x = "Pairwise Comparisons",
+    y = "Mean Difference"
+  ) +
+  coord_flip() + # Rotate for better readability
+  theme_minimal()
 ```
 
 
