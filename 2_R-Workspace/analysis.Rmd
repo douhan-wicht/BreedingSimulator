@@ -41,16 +41,16 @@ genload_df$Generation <- genload_df$Generation - 5000
 genload_df$PopulationID <- rep(1:2, each = 101)
 #load relatedness model
 
-related_df <- read.table("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/2_Relatedness/relatedness_5000burn_100gen_1_popstats.txt", header = T)
+related_df <- read.table("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/2_Relatedness/relatedness_10000burn_100gen_1_popstats.txt", header = T)
 
 
-for(i in 2:2){
-  df <- read.table(paste0("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/2_Relatedness/relatedness_5000burn_100gen_", i, "_popstats.txt"), header = T)
+for(i in 2:40){
+  df <- read.table(paste0("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/2_Relatedness/relatedness_10000burn_100gen_", i, "_popstats.txt"), header = T)
   related_df <- rbind(related_df, df)
 }
 
-#related_df$Generation <- related_df$Generation -5000
-related_df$PopulationID <- rep(1:2, each = 101)
+related_df$Generation <- related_df$Generation -10000
+related_df$PopulationID <- rep(1:41, each = 101)
 #load genetic + relatedness
 
 mixed_df <- read.table("C:/Users/besan/OneDrive/Bureau/Master MLS/Genpop/BreedingSimulator-main/BreedingSimulator/BreedingSimulator/1_Outputs/4_Mixed/mixed_5000burn_100gen_1_popstats.txt", header = T)
@@ -178,7 +178,7 @@ colnames(mean_random_df) <- c("generation", "heterozygosity", "genetic_load", "r
 
 
 ```{r}
-realized_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = realized_load), color = "indianred1", size = 1 ) +  geom_line(data = mean_rm_df, aes(x = generation, y = realized_load), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = realized_load), color = "yellow1", size = 1 ) + labs(x = "Generations", y = "Realized load") +
+realized_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = realized_load), color = "indianred1", size = 1 ) +  geom_line(data = mean_rm_df, aes(x = generation, y = realized_load), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = realized_load), color = "yellow1", size = 1 )+ geom_line(data = mean_related_df, aes(x = generation, y = realized_load), color = "skyblue1", size = 1 ) + labs(x = "Generations", y = "Realized load") + 
   theme(
     plot.background = element_rect(fill = "black"),
     panel.background = element_rect(fill = "black"),
@@ -191,7 +191,7 @@ realized_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generatio
     legend.text = element_text(color = "white") 
   )
 
-load_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = genetic_load), color = "indianred1", size = 1 ) +  geom_line(data = mean_rm_df, aes(x = generation, y = genetic_load), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = genetic_load), color = "yellow1", size = 1 ) + labs(x = "Generations", y = "Genetic load") + theme(
+load_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = genetic_load), color = "indianred1", size = 1 ) +  geom_line(data = mean_rm_df, aes(x = generation, y = genetic_load), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = genetic_load), color = "yellow1", size = 1 )+ geom_line(data = mean_related_df, aes(x = generation, y = genetic_load), color = "skyblue1", size = 1 ) + labs(x = "Generations", y = "Genetic load") + theme(
     plot.background = element_rect(fill = "black"),
     panel.background = element_rect(fill = "black"),
     panel.grid.major = element_line(color = "gray30"),
@@ -202,7 +202,7 @@ load_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y
     legend.background = element_rect(fill = "black"),
     legend.text = element_text(color = "white") 
   )
-fitness_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = fitness), color = "indianred1", size = 1 ) + geom_line(data = mean_rm_df, aes(x = generation, y = fitness), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = fitness), color = "yellow1", size = 1 ) + labs(x = "Generations", y = "Fitness") + theme(
+fitness_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = fitness), color = "indianred1", size = 1 ) + geom_line(data = mean_rm_df, aes(x = generation, y = fitness), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = fitness), color = "yellow1", size = 1 )+ geom_line(data = mean_related_df, aes(x = generation, y = fitness), color = "skyblue1", size = 1 ) + labs(x = "Generations", y = "Fitness") + theme(
     plot.background = element_rect(fill = "black"),
     panel.background = element_rect(fill = "black"),
     panel.grid.major = element_line(color = "gray30"),
@@ -215,7 +215,7 @@ fitness_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation
       
   )
 
-hetero_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = heterozygosity), color = "indianred1", size = 1 ) + geom_line(data = mean_rm_df, aes(x = generation, y = heterozygosity), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = heterozygosity), color = "yellow1", size = 1 ) + labs(x = "Generations", y = "Number of unique mutation") + theme(
+hetero_graph <- ggplot() + geom_line(data = mean_genload_df, aes(x = generation, y = heterozygosity), color = "indianred1", size = 1 ) + geom_line(data = mean_rm_df, aes(x = generation, y = heterozygosity), color = "orchid1", size = 1 ) + geom_line(data = mean_random_df, aes(x = generation, y = heterozygosity), color = "yellow1", size = 1 )+ geom_line(data = mean_related_df, aes(x = generation, y = heterozygosity), color = "skyblue1", size = 1 ) + labs(x = "Generations", y = "Number of unique mutation") + theme(
     plot.background = element_rect(fill = "black"),
     panel.background = element_rect(fill = "black"),
     panel.grid.major = element_line(color = "gray30"),
