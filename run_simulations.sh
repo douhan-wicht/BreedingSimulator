@@ -1,4 +1,4 @@
-#!/run/current-system/sw/bin/bash 
+#!/usr/bin/bash
 
 # Define the mating strategies
 mating_strategies=("random" "random-relatedness" "relatedness" "genetic_load" "mixed" "relatedness_paper" "mixed_paper")
