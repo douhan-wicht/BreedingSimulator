@@ -137,7 +137,7 @@ function (s) getPopSumm(o pop, i sampleSize)
 				available_fems = c(available_fems, fem);
 			}
 		}
-		
+		cat("Generation " + sim.cycle + " Number of available females: " + size(available_fems) + ".\n");
 		// Filtering females
 		if (size(available_fems) > 0){
 			mother = sample(available_fems, 1, replace = F);
@@ -156,7 +156,7 @@ function (s) getPopSumm(o pop, i sampleSize)
 				available_mans = c(available_mans, man);
 			}
 		}
-		
+		cat("Generation " + sim.cycle + " Number of available males: " + size(available_mans) + ".\n");
 		// Selecting males	
 		if (size(available_mans) != 0){
 			iteration_count = 0;

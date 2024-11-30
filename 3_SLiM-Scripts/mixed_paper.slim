@@ -158,6 +158,7 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
 				available_fems = c(available_fems, fem);
 			}
 		}
+		//cat("Generation " + sim.cycle + " Number of available females: " + size(available_fems) + ".\n");
 		// Select a mother from the pool of available females
 		if (size(available_fems) > 0){
 			mother = sample(available_fems, 1, replace = F);
@@ -173,7 +174,7 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
 				available_mans = c(available_mans, man);
 			}
 		}
-		
+		//cat("Generation " + sim.cycle + " Number of available males: " + size(available_mans) + ".\n");
 		// Initialize some state parameters and counters
 		found_a_daddy = F;
 		allowed_mutations = 1;
@@ -209,8 +210,7 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
 			if (found_a_daddy) {
 				// Exit the retry loop if a mate has been found in the previous candidates
 				break;
-			}
-			
+			}			
 			// Sequence a new potential father if no adequate mate has been found in the previous candidates
 			if (size(available_mans) != 0){
 				iteration_count = 0;
@@ -280,7 +280,7 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
 				available_fems = c(available_fems, fem);
 			}
 		}
-		
+		cat("Generation " + sim.cycle + " Number of available females: " + size(available_fems) + ".\n");
 		// Filtering females
 		if (size(available_fems) > 0){
 			mother = sample(available_fems, 1, replace = F);
@@ -297,7 +297,7 @@ function (lifso)countSharedMuts(lifso ind1, lifso ind2, lifso mutationTypes) {
 				available_mans = c(available_mans, man);
 			}
 		}
-		
+		cat("Generation " + sim.cycle + " Number of available males: " + size(available_mans) + ".\n");
 		// Selecting males	
 		if (size(available_mans) != 0){
 			iteration_count = 0;
