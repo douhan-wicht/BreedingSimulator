@@ -589,7 +589,7 @@ analysis on realized load
 
 ```{r}
 library("reshape2")
-mod <- aov(model_df$RelzLoad ~ model_df$regime)
+mod <- aov(model_df$MeanFitness ~ model_df$regime)
 anova(mod)
 posthoc <- TukeyHSD(mod)
 print(posthoc)
