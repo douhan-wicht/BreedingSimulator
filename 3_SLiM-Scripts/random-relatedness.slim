@@ -123,15 +123,16 @@ function (s) getPopSumm(o pop, i sampleSize) {
 	else {
 		mothers = c();  // creates groups of mothers and fathers
 		fathers = c();
-		for (m in 0:(MPrs-1)) {
-			mother = sample(fems,1);  // selects one male and female from the males and females with age == 0 
-			father = sample(mans,1);
-			mothers = c(mothers,mother); 	// adds the female to "mothers" and the male to the "fathers"
-			fathers = c(fathers,father);
-			fems = fems[fems.index!=mother.index]; // removes the female and male from their respective pools of possible parents
-			mans = mans[mans.index!=father.index];
+		while (size(mothers) < MPrs & size(fathers) < MPrs) {
+				mother = sample(fems,1, replace=F);  // selects one male and female from the males and females with age == 0 
+				father = sample(mans,1, replace=F);
+				if (mother.relatedness(father) == 0){
+					mothers = c(mothers,mother); 	// adds the female to "mothers" and the male to the "fathers"
+					fathers = c(fathers,father);
+					fems = fems[fems.index!=mother.index]; // removes the female and male from their respective pools of possible parents
+					mans = mans[mans.index!=father.index];			
+				}
 		}
-	
 	}
 	mothers.tag = c(1:MPrs); // tags the mothers and fathers with unique numbers to ensure the remain in the correct order
 	fathers.tag = c(1:MPrs);
